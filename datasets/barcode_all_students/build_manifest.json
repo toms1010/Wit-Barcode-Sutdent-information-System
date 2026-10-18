@@ -1,0 +1,331 @@
+{
+  "source_dataset": null,
+  "target": "datasets/barcode_all_students",
+  "allowed_assets": [
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_1.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_2.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_2.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_1.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_3.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_3.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/info/student_1_info.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/info/student_2_info.png"
+  ],
+  "yolo_images_allowed": [
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_1.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_2.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_3.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/info/student_1_info.png",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/info/student_2_info.png"
+  ],
+  "synthetic_data_used": false,
+  "external_dataset_used": false,
+  "card_groups": {
+    "card_A": {
+      "split": "train",
+      "files": [
+        "Id_1.png",
+        "barcode_2.png"
+      ],
+      "labels": {
+        "Id_1.png": {
+          "label": "0 0.500847 0.844622 0.889831 0.111554",
+          "evidence": [
+            {
+              "data": "000065412",
+              "type": "CODE39",
+              "left": 33,
+              "top": 792,
+              "width": 525,
+              "height": 112,
+              "attempt": "preprocessing"
+            },
+            {
+              "image_size": [
+                590,
+                1004
+              ],
+              "box_xyxy": [
+                33,
+                792,
+                558,
+                904
+              ],
+              "box_yolo_normalised": [
+                0.500847,
+                0.844622,
+                0.889831,
+                0.111554
+              ]
+            }
+          ]
+        },
+        "barcode_2.png": {
+          "label": "0 0.495888 0.363636 0.952303 0.663102",
+          "evidence": [
+            {
+              "data": "000065412",
+              "type": "CODE39",
+              "left": 12,
+              "top": 6,
+              "width": 579,
+              "height": 124,
+              "attempt": "preprocessing"
+            },
+            {
+              "image_size": [
+                608,
+                187
+              ],
+              "box_xyxy": [
+                12,
+                6,
+                591,
+                130
+              ],
+              "box_yolo_normalised": [
+                0.495888,
+                0.363636,
+                0.952303,
+                0.663102
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "card_B": {
+      "split": "val",
+      "files": [
+        "Id_2.png",
+        "barcode_1.png"
+      ],
+      "labels": {
+        "Id_2.png": {
+          "label": "0 0.507627 0.850100 0.811864 0.120518",
+          "evidence": [
+            {
+              "data": "000065902",
+              "type": "CODE39",
+              "left": 60,
+              "top": 793,
+              "width": 479,
+              "height": 121,
+              "attempt": "preprocessing"
+            },
+            {
+              "image_size": [
+                590,
+                1004
+              ],
+              "box_xyxy": [
+                60,
+                793,
+                539,
+                914
+              ],
+              "box_yolo_normalised": [
+                0.507627,
+                0.8501,
+                0.811864,
+                0.120518
+              ]
+            }
+          ]
+        },
+        "barcode_1.png": {
+          "label": "0 0.501779 0.428218 0.939502 0.668317",
+          "evidence": [
+            {
+              "data": "000065902",
+              "type": "CODE39",
+              "left": 18,
+              "top": 19,
+              "width": 528,
+              "height": 135,
+              "attempt": "preprocessing"
+            },
+            {
+              "image_size": [
+                562,
+                202
+              ],
+              "box_xyxy": [
+                18,
+                19,
+                546,
+                154
+              ],
+              "box_yolo_normalised": [
+                0.501779,
+                0.428218,
+                0.939502,
+                0.668317
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "card_C": {
+      "split": "test",
+      "files": [
+        "Id_3.png",
+        "barcode_3.png"
+      ],
+      "labels": {
+        "Id_3.png": {
+          "label": "0 0.518519 0.851852 0.755556 0.126362",
+          "evidence": [
+            {
+              "data": "000065736",
+              "type": "CODE39",
+              "left": 38,
+              "top": 362,
+              "width": 204,
+              "height": 58,
+              "attempt": "upscale2x",
+              "attempts_tried": 2
+            },
+            {
+              "image_size": [
+                270,
+                459
+              ],
+              "box_xyxy": [
+                38,
+                362,
+                242,
+                420
+              ],
+              "box_yolo_normalised": [
+                0.518519,
+                0.851852,
+                0.755556,
+                0.126362
+              ]
+            }
+          ]
+        },
+        "barcode_3.png": {
+          "label": "0 0.504076 0.431655 0.937500 0.705036",
+          "evidence": [
+            {
+              "data": "000065736",
+              "type": "CODE39",
+              "left": 26,
+              "top": 22,
+              "width": 690,
+              "height": 196,
+              "attempt": "preprocessing"
+            },
+            {
+              "image_size": [
+                736,
+                278
+              ],
+              "box_xyxy": [
+                26,
+                22,
+                716,
+                218
+              ],
+              "box_yolo_normalised": [
+                0.504076,
+                0.431655,
+                0.9375,
+                0.705036
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "negatives": {
+    "student_1_info.png": "train",
+    "student_2_info.png": "val"
+  },
+  "decode_reference": {
+    "barcode_2.png": [
+      {
+        "data": "000065412",
+        "type": "CODE39",
+        "left": 12,
+        "top": 6,
+        "width": 579,
+        "height": 124,
+        "attempt": "preprocessing"
+      }
+    ],
+    "barcode_1.png": [
+      {
+        "data": "000065902",
+        "type": "CODE39",
+        "left": 18,
+        "top": 19,
+        "width": 528,
+        "height": 135,
+        "attempt": "preprocessing"
+      }
+    ],
+    "barcode_3.png": [
+      {
+        "data": "000065736",
+        "type": "CODE39",
+        "left": 26,
+        "top": 22,
+        "width": 690,
+        "height": 196,
+        "attempt": "preprocessing"
+      }
+    ]
+  },
+  "source_digests_before": {
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_1.png": "15de778f2c61c9924b0ed0432d829853",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_2.png": "54f238f873fa4c697c4f2206b08717da",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_2.png": "38e37019c04f9741e2e064e8262cc1e8",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_1.png": "9adeb2f3248ca80744232465139e5bd9",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_3.png": "80bddf87095b710af48a9aee8019330b",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_3.png": "9fe4f490a1310b429485b630919b7150",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/info/student_1_info.png": "6f6160d4e5c72fbbdd18d34e7722823a",
+    "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/info/student_2_info.png": "57c4262c9838999937d71d8e3ce2b834"
+  },
+  "problems": [],
+  "counts": {
+    "train": {
+      "images": 3,
+      "labels": 3,
+      "positive": 2,
+      "negative": 1,
+      "unmatched_images": []
+    },
+    "val": {
+      "images": 3,
+      "labels": 3,
+      "positive": 2,
+      "negative": 1,
+      "unmatched_images": []
+    },
+    "test": {
+      "images": 2,
+      "labels": 2,
+      "positive": 2,
+      "negative": 0,
+      "unmatched_images": []
+    }
+  },
+  "exact_duplicates": [],
+  "independent_real_cards_in_test": [
+    "Id_3.png",
+    "barcode_3.png"
+  ],
+  "independent_real_cards_in_train": [
+    "Id_1.png",
+    "barcode_2.png"
+  ],
+  "independent_real_cards_in_val": [
+    "Id_2.png",
+    "barcode_1.png"
+  ]
+}

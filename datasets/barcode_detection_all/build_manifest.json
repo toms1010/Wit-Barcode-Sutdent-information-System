@@ -1,0 +1,413 @@
+{
+  "seed": 20261015,
+  "max_area_ratio": 2.6,
+  "sources": {
+    "Id_1.png": {
+      "group": "card_A",
+      "split": "train",
+      "payload": "000065412",
+      "symbology": "CODE39",
+      "box_xywh": [
+        33,
+        792,
+        525,
+        112
+      ],
+      "md5": "15de778f2c61c9924b0ed0432d829853"
+    },
+    "barcode_2.png": {
+      "group": "card_A",
+      "split": "train",
+      "payload": "000065412",
+      "symbology": "CODE39",
+      "box_xywh": [
+        12,
+        6,
+        579,
+        124
+      ],
+      "md5": "54f238f873fa4c697c4f2206b08717da"
+    },
+    "Id_2.png": {
+      "group": "card_B",
+      "split": "val",
+      "payload": "000065902",
+      "symbology": "CODE39",
+      "box_xywh": [
+        60,
+        793,
+        479,
+        121
+      ],
+      "md5": "38e37019c04f9741e2e064e8262cc1e8"
+    },
+    "barcode_1.png": {
+      "group": "card_B",
+      "split": "val",
+      "payload": "000065902",
+      "symbology": "CODE39",
+      "box_xywh": [
+        18,
+        19,
+        528,
+        135
+      ],
+      "md5": "9adeb2f3248ca80744232465139e5bd9"
+    },
+    "Id_3.png": {
+      "group": "card_C",
+      "split": "test",
+      "payload": "000065736",
+      "symbology": "CODE39",
+      "box_xywh": [
+        38,
+        362,
+        204,
+        58
+      ],
+      "md5": "80bddf87095b710af48a9aee8019330b"
+    },
+    "barcode_3.png": {
+      "group": "card_C",
+      "split": "test",
+      "payload": "000065736",
+      "symbology": "CODE39",
+      "box_xywh": [
+        26,
+        22,
+        690,
+        196
+      ],
+      "md5": "9fe4f490a1310b429485b630919b7150"
+    },
+    "student_1_info.png": {
+      "group": "negatives",
+      "split": "train",
+      "is_negative": true,
+      "md5": "6f6160d4e5c72fbbdd18d34e7722823a",
+      "note": "no barcode decodes in any variant; kept as a single negative"
+    },
+    "student_2_info.png": {
+      "group": "negatives",
+      "split": "val",
+      "is_negative": true,
+      "md5": "57c4262c9838999937d71d8e3ce2b834",
+      "note": "no barcode decodes in any variant; kept as a single negative"
+    }
+  },
+  "groups": {
+    "card_A": {
+      "split": "train",
+      "kept": 67,
+      "discarded": 3,
+      "files": [
+        "card_A__Id_1__orig_copy",
+        "card_A__Id_1__light_dim",
+        "card_A__Id_1__light_dimmer",
+        "card_A__Id_1__light_bright",
+        "card_A__Id_1__light_hot",
+        "card_A__Id_1__gamma_down",
+        "card_A__Id_1__gamma_up",
+        "card_A__Id_1__contrast_low",
+        "card_A__Id_1__contrast_high",
+        "card_A__Id_1__shadow_soft",
+        "card_A__Id_1__shadow_hard",
+        "card_A__Id_1__glare_soft",
+        "card_A__Id_1__blur_soft",
+        "card_A__Id_1__blur_hard",
+        "card_A__Id_1__noise_light",
+        "card_A__Id_1__noise_heavy",
+        "card_A__Id_1__jpeg_q35",
+        "card_A__Id_1__combo_dark_noisy",
+        "card_A__Id_1__combo_bright_glare",
+        "card_A__Id_1__combo_indoor",
+        "card_A__Id_1__rot_04",
+        "card_A__Id_1__rot_08",
+        "card_A__Id_1__rot_14",
+        "card_A__Id_1__rot_neg04",
+        "card_A__Id_1__rot_neg08",
+        "card_A__Id_1__skew_soft",
+        "card_A__Id_1__persp_04",
+        "card_A__Id_1__persp_09",
+        "card_A__Id_1__scale_070",
+        "card_A__Id_1__scale_130",
+        "card_A__Id_1__shift_left",
+        "card_A__Id_1__shift_up",
+        "card_A__Id_1__occlude_edge",
+        "card_A__Id_1__occlude_corner",
+        "card_A__barcode_2__orig_copy",
+        "card_A__barcode_2__light_dim",
+        "card_A__barcode_2__light_dimmer",
+        "card_A__barcode_2__light_bright",
+        "card_A__barcode_2__light_hot",
+        "card_A__barcode_2__gamma_down",
+        "card_A__barcode_2__gamma_up",
+        "card_A__barcode_2__contrast_low",
+        "card_A__barcode_2__contrast_high",
+        "card_A__barcode_2__shadow_soft",
+        "card_A__barcode_2__shadow_hard",
+        "card_A__barcode_2__glare_soft",
+        "card_A__barcode_2__blur_soft",
+        "card_A__barcode_2__blur_hard",
+        "card_A__barcode_2__noise_light",
+        "card_A__barcode_2__noise_heavy",
+        "card_A__barcode_2__jpeg_q35",
+        "card_A__barcode_2__combo_dark_noisy",
+        "card_A__barcode_2__combo_bright_glare",
+        "card_A__barcode_2__combo_indoor",
+        "card_A__barcode_2__rot_04",
+        "card_A__barcode_2__rot_08",
+        "card_A__barcode_2__rot_14",
+        "card_A__barcode_2__rot_neg04",
+        "card_A__barcode_2__rot_neg08",
+        "card_A__barcode_2__skew_soft",
+        "card_A__barcode_2__persp_04",
+        "card_A__barcode_2__persp_09",
+        "card_A__barcode_2__scale_070",
+        "card_A__barcode_2__scale_130",
+        "card_A__barcode_2__shift_up",
+        "card_A__barcode_2__occlude_edge",
+        "card_A__barcode_2__occlude_corner"
+      ]
+    },
+    "card_B": {
+      "split": "val",
+      "kept": 68,
+      "discarded": 2,
+      "files": [
+        "card_B__Id_2__orig_copy",
+        "card_B__Id_2__light_dim",
+        "card_B__Id_2__light_dimmer",
+        "card_B__Id_2__light_bright",
+        "card_B__Id_2__light_hot",
+        "card_B__Id_2__gamma_down",
+        "card_B__Id_2__gamma_up",
+        "card_B__Id_2__contrast_low",
+        "card_B__Id_2__contrast_high",
+        "card_B__Id_2__shadow_soft",
+        "card_B__Id_2__shadow_hard",
+        "card_B__Id_2__glare_soft",
+        "card_B__Id_2__blur_soft",
+        "card_B__Id_2__blur_hard",
+        "card_B__Id_2__noise_light",
+        "card_B__Id_2__noise_heavy",
+        "card_B__Id_2__jpeg_q35",
+        "card_B__Id_2__combo_dark_noisy",
+        "card_B__Id_2__combo_bright_glare",
+        "card_B__Id_2__combo_indoor",
+        "card_B__Id_2__rot_04",
+        "card_B__Id_2__rot_08",
+        "card_B__Id_2__rot_14",
+        "card_B__Id_2__rot_neg04",
+        "card_B__Id_2__rot_neg08",
+        "card_B__Id_2__skew_soft",
+        "card_B__Id_2__persp_04",
+        "card_B__Id_2__persp_09",
+        "card_B__Id_2__scale_070",
+        "card_B__Id_2__scale_130",
+        "card_B__Id_2__shift_left",
+        "card_B__Id_2__shift_up",
+        "card_B__Id_2__occlude_edge",
+        "card_B__Id_2__occlude_corner",
+        "card_B__barcode_1__orig_copy",
+        "card_B__barcode_1__light_dim",
+        "card_B__barcode_1__light_dimmer",
+        "card_B__barcode_1__light_bright",
+        "card_B__barcode_1__light_hot",
+        "card_B__barcode_1__gamma_down",
+        "card_B__barcode_1__gamma_up",
+        "card_B__barcode_1__contrast_low",
+        "card_B__barcode_1__contrast_high",
+        "card_B__barcode_1__shadow_soft",
+        "card_B__barcode_1__shadow_hard",
+        "card_B__barcode_1__glare_soft",
+        "card_B__barcode_1__blur_soft",
+        "card_B__barcode_1__blur_hard",
+        "card_B__barcode_1__noise_light",
+        "card_B__barcode_1__noise_heavy",
+        "card_B__barcode_1__jpeg_q35",
+        "card_B__barcode_1__combo_dark_noisy",
+        "card_B__barcode_1__combo_bright_glare",
+        "card_B__barcode_1__combo_indoor",
+        "card_B__barcode_1__rot_04",
+        "card_B__barcode_1__rot_08",
+        "card_B__barcode_1__rot_14",
+        "card_B__barcode_1__rot_neg04",
+        "card_B__barcode_1__rot_neg08",
+        "card_B__barcode_1__skew_soft",
+        "card_B__barcode_1__skew_strong",
+        "card_B__barcode_1__persp_04",
+        "card_B__barcode_1__persp_09",
+        "card_B__barcode_1__scale_070",
+        "card_B__barcode_1__scale_130",
+        "card_B__barcode_1__shift_up",
+        "card_B__barcode_1__occlude_edge",
+        "card_B__barcode_1__occlude_corner"
+      ]
+    },
+    "card_C": {
+      "split": "test",
+      "kept": 60,
+      "discarded": 10,
+      "files": [
+        "card_C__Id_3__orig_copy",
+        "card_C__Id_3__light_dim",
+        "card_C__Id_3__light_dimmer",
+        "card_C__Id_3__light_bright",
+        "card_C__Id_3__light_hot",
+        "card_C__Id_3__gamma_down",
+        "card_C__Id_3__gamma_up",
+        "card_C__Id_3__contrast_low",
+        "card_C__Id_3__contrast_high",
+        "card_C__Id_3__shadow_soft",
+        "card_C__Id_3__shadow_hard",
+        "card_C__Id_3__glare_soft",
+        "card_C__Id_3__combo_bright_glare",
+        "card_C__Id_3__rot_04",
+        "card_C__Id_3__rot_08",
+        "card_C__Id_3__rot_14",
+        "card_C__Id_3__rot_neg04",
+        "card_C__Id_3__rot_neg08",
+        "card_C__Id_3__skew_soft",
+        "card_C__Id_3__skew_strong",
+        "card_C__Id_3__persp_04",
+        "card_C__Id_3__scale_130",
+        "card_C__Id_3__shift_left",
+        "card_C__Id_3__shift_up",
+        "card_C__Id_3__occlude_edge",
+        "card_C__Id_3__occlude_corner",
+        "card_C__barcode_3__orig_copy",
+        "card_C__barcode_3__light_dim",
+        "card_C__barcode_3__light_dimmer",
+        "card_C__barcode_3__light_bright",
+        "card_C__barcode_3__light_hot",
+        "card_C__barcode_3__gamma_down",
+        "card_C__barcode_3__gamma_up",
+        "card_C__barcode_3__contrast_low",
+        "card_C__barcode_3__contrast_high",
+        "card_C__barcode_3__shadow_soft",
+        "card_C__barcode_3__shadow_hard",
+        "card_C__barcode_3__glare_soft",
+        "card_C__barcode_3__blur_soft",
+        "card_C__barcode_3__blur_hard",
+        "card_C__barcode_3__noise_light",
+        "card_C__barcode_3__noise_heavy",
+        "card_C__barcode_3__jpeg_q35",
+        "card_C__barcode_3__combo_dark_noisy",
+        "card_C__barcode_3__combo_bright_glare",
+        "card_C__barcode_3__combo_indoor",
+        "card_C__barcode_3__rot_04",
+        "card_C__barcode_3__rot_08",
+        "card_C__barcode_3__rot_14",
+        "card_C__barcode_3__rot_neg04",
+        "card_C__barcode_3__rot_neg08",
+        "card_C__barcode_3__skew_soft",
+        "card_C__barcode_3__skew_strong",
+        "card_C__barcode_3__persp_04",
+        "card_C__barcode_3__persp_09",
+        "card_C__barcode_3__scale_070",
+        "card_C__barcode_3__scale_130",
+        "card_C__barcode_3__shift_up",
+        "card_C__barcode_3__occlude_edge",
+        "card_C__barcode_3__occlude_corner"
+      ]
+    }
+  },
+  "discarded": [
+    {
+      "stem": "card_A__Id_1__skew_strong",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_A__barcode_2__skew_strong",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_A__barcode_2__shift_left",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_B__Id_2__skew_strong",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_B__barcode_1__shift_left",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__blur_soft",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__blur_hard",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__noise_light",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__noise_heavy",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__jpeg_q35",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__combo_dark_noisy",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__combo_indoor",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__persp_09",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__Id_3__scale_070",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    },
+    {
+      "stem": "card_C__barcode_3__shift_left",
+      "reason": "variant does not decode to the source value (unreadable target)"
+    }
+  ],
+  "problems": [],
+  "synthetic_barcode_content": false,
+  "external_data": false,
+  "annotations": {
+    "policy": "propagate the decoded box through the same transform, re-measure from the variant when propagation is too loose",
+    "acceptance": "must contain the decoded symbol and be <= 2.6x its area"
+  },
+  "counts": {
+    "train": {
+      "images": 68,
+      "positive": 67,
+      "negative": 1,
+      "unmatched": []
+    },
+    "val": {
+      "images": 69,
+      "positive": 68,
+      "negative": 1,
+      "unmatched": []
+    },
+    "test": {
+      "images": 60,
+      "positive": 60,
+      "negative": 0,
+      "unmatched": []
+    }
+  },
+  "total_images": 197,
+  "unique_source_images": 6,
+  "exact_duplicates": [],
+  "card_to_split": {
+    "card_A": "train",
+    "card_B": "val",
+    "card_C": "test"
+  }
+}

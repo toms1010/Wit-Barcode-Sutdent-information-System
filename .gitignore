@@ -1,0 +1,83 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Database
+*.sqlite
+*.db
+
+# Generated files
+generated_barcodes/
+reports/
+*.pdf
+
+# YOLO models
+models_yolo/active/
+models_yolo/candidates/
+models_yolo/backups/
+runs/
+
+# Dataset
+dataset/images/
+dataset/labels/
+
+# Media
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.bmp
+*.mp4
+*.avi
+
+# Fonts
+assets/fonts/
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# MyPy
+.mypy_cache/
+*.pyi
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary
+tmp/
+temp/
+*.tmp

@@ -1,0 +1,441 @@
+{
+  "target": "datasets/barcode_aug_all",
+  "synthetic_barcode_content_generated": false,
+  "source_images": {
+    "Id_1.png": {
+      "split": "train",
+      "is_negative": false,
+      "payload": "000065412",
+      "box_xywh": [
+        33,
+        792,
+        525,
+        112
+      ],
+      "variants_kept": 20
+    },
+    "Id_2.png": {
+      "split": "val",
+      "is_negative": false,
+      "payload": "000065902",
+      "box_xywh": [
+        60,
+        793,
+        479,
+        121
+      ],
+      "variants_kept": 20
+    },
+    "Id_3.png": {
+      "split": "test",
+      "is_negative": false,
+      "payload": "000065736",
+      "box_xywh": [
+        38,
+        362,
+        204,
+        58
+      ],
+      "variants_kept": 0
+    },
+    "barcode_2.png": {
+      "split": "train",
+      "is_negative": false,
+      "payload": "000065412",
+      "box_xywh": [
+        12,
+        6,
+        579,
+        124
+      ],
+      "variants_kept": 20
+    },
+    "barcode_1.png": {
+      "split": "val",
+      "is_negative": false,
+      "payload": "000065902",
+      "box_xywh": [
+        18,
+        19,
+        528,
+        135
+      ],
+      "variants_kept": 20
+    },
+    "barcode_3.png": {
+      "split": "test",
+      "is_negative": false,
+      "payload": "000065736",
+      "box_xywh": [
+        26,
+        22,
+        690,
+        196
+      ],
+      "variants_kept": 20
+    },
+    "student_1_info.png": {
+      "split": "train",
+      "is_negative": true,
+      "variants_kept": 0,
+      "note": "no barcode; original kept as a single negative"
+    },
+    "student_2_info.png": {
+      "split": "val",
+      "is_negative": true,
+      "variants_kept": 0,
+      "note": "no barcode; original kept as a single negative"
+    }
+  },
+  "groups": {
+    "Id_1": {
+      "split": "train",
+      "kept": 21,
+      "discarded": 3,
+      "files": [
+        "Id_1_orig",
+        "Id_1_bright_dark_60",
+        "Id_1_bright_dark_75",
+        "Id_1_bright_over_130",
+        "Id_1_bright_over_155",
+        "Id_1_contrast_low_55",
+        "Id_1_contrast_high_145",
+        "Id_1_gamma_075",
+        "Id_1_gamma_130",
+        "Id_1_shade_35",
+        "Id_1_blur_sigma_1",
+        "Id_1_noise_sigma_10",
+        "Id_1_noise_sigma_20",
+        "Id_1_jpeg_q40",
+        "Id_1_rot_cw_04",
+        "Id_1_rot_ccw_04",
+        "Id_1_scale_080",
+        "Id_1_scale_125",
+        "Id_1_scale_065",
+        "Id_1_shift_left_06",
+        "Id_1_shift_up_05"
+      ]
+    },
+    "Id_2": {
+      "split": "val",
+      "kept": 21,
+      "discarded": 3,
+      "files": [
+        "Id_2_orig",
+        "Id_2_bright_dark_60",
+        "Id_2_bright_dark_75",
+        "Id_2_bright_over_130",
+        "Id_2_bright_over_155",
+        "Id_2_contrast_low_55",
+        "Id_2_contrast_high_145",
+        "Id_2_gamma_075",
+        "Id_2_gamma_130",
+        "Id_2_shade_35",
+        "Id_2_blur_sigma_1",
+        "Id_2_noise_sigma_10",
+        "Id_2_noise_sigma_20",
+        "Id_2_jpeg_q40",
+        "Id_2_rot_cw_04",
+        "Id_2_rot_ccw_04",
+        "Id_2_scale_080",
+        "Id_2_scale_125",
+        "Id_2_scale_065",
+        "Id_2_shift_left_06",
+        "Id_2_shift_up_05"
+      ]
+    },
+    "Id_3": {
+      "split": "test",
+      "kept": 1,
+      "discarded": 23,
+      "files": [
+        "Id_3_orig"
+      ]
+    },
+    "barcode_2": {
+      "split": "train",
+      "kept": 21,
+      "discarded": 3,
+      "files": [
+        "barcode_2_orig",
+        "barcode_2_bright_dark_60",
+        "barcode_2_bright_dark_75",
+        "barcode_2_bright_over_130",
+        "barcode_2_bright_over_155",
+        "barcode_2_contrast_low_55",
+        "barcode_2_contrast_high_145",
+        "barcode_2_gamma_075",
+        "barcode_2_gamma_130",
+        "barcode_2_shade_35",
+        "barcode_2_blur_sigma_1",
+        "barcode_2_noise_sigma_10",
+        "barcode_2_noise_sigma_20",
+        "barcode_2_jpeg_q40",
+        "barcode_2_rot_cw_04",
+        "barcode_2_rot_ccw_04",
+        "barcode_2_scale_080",
+        "barcode_2_scale_125",
+        "barcode_2_scale_065",
+        "barcode_2_shift_left_06",
+        "barcode_2_shift_up_05"
+      ]
+    },
+    "barcode_1": {
+      "split": "val",
+      "kept": 21,
+      "discarded": 3,
+      "files": [
+        "barcode_1_orig",
+        "barcode_1_bright_dark_60",
+        "barcode_1_bright_dark_75",
+        "barcode_1_bright_over_130",
+        "barcode_1_bright_over_155",
+        "barcode_1_contrast_low_55",
+        "barcode_1_contrast_high_145",
+        "barcode_1_gamma_075",
+        "barcode_1_gamma_130",
+        "barcode_1_shade_35",
+        "barcode_1_blur_sigma_1",
+        "barcode_1_noise_sigma_10",
+        "barcode_1_noise_sigma_20",
+        "barcode_1_jpeg_q40",
+        "barcode_1_rot_cw_04",
+        "barcode_1_rot_ccw_04",
+        "barcode_1_scale_080",
+        "barcode_1_scale_125",
+        "barcode_1_scale_065",
+        "barcode_1_shift_left_06",
+        "barcode_1_shift_up_05"
+      ]
+    },
+    "barcode_3": {
+      "split": "test",
+      "kept": 21,
+      "discarded": 3,
+      "files": [
+        "barcode_3_orig",
+        "barcode_3_bright_dark_60",
+        "barcode_3_bright_dark_75",
+        "barcode_3_bright_over_130",
+        "barcode_3_bright_over_155",
+        "barcode_3_contrast_low_55",
+        "barcode_3_contrast_high_145",
+        "barcode_3_gamma_075",
+        "barcode_3_gamma_130",
+        "barcode_3_shade_35",
+        "barcode_3_blur_sigma_1",
+        "barcode_3_noise_sigma_10",
+        "barcode_3_noise_sigma_20",
+        "barcode_3_jpeg_q40",
+        "barcode_3_rot_cw_04",
+        "barcode_3_rot_ccw_04",
+        "barcode_3_scale_080",
+        "barcode_3_scale_125",
+        "barcode_3_scale_065",
+        "barcode_3_shift_left_06",
+        "barcode_3_shift_up_05"
+      ]
+    },
+    "student_1_info": {
+      "split": "train",
+      "kept": 0,
+      "discarded": 0,
+      "files": []
+    },
+    "student_2_info": {
+      "split": "val",
+      "kept": 0,
+      "discarded": 0,
+      "files": []
+    }
+  },
+  "discarded": [
+    {
+      "stem": "Id_1_rot_cw_08",
+      "reason": "box does not describe the symbol: iou=0.27 coverage=1.0 area_ratio=3.704"
+    },
+    {
+      "stem": "Id_1_rot_ccw_08",
+      "reason": "box does not describe the symbol: iou=0.27 coverage=1.0 area_ratio=3.704"
+    },
+    {
+      "stem": "Id_1_perspective_05",
+      "reason": "box does not describe the symbol: iou=0.4816 coverage=0.9615 area_ratio=1.958"
+    },
+    {
+      "stem": "Id_2_rot_cw_08",
+      "reason": "box does not describe the symbol: iou=0.3597 coverage=1.0 area_ratio=2.78"
+    },
+    {
+      "stem": "Id_2_rot_ccw_08",
+      "reason": "box does not describe the symbol: iou=0.3516 coverage=0.998 area_ratio=2.836"
+    },
+    {
+      "stem": "Id_2_perspective_05",
+      "reason": "box does not describe the symbol: iou=0.5576 coverage=0.9618 area_ratio=1.687"
+    },
+    {
+      "stem": "Id_3_bright_dark_60",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_bright_dark_75",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_bright_over_130",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_bright_over_155",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_contrast_low_55",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_contrast_high_145",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_gamma_075",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_gamma_130",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_shade_35",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_blur_sigma_1",
+      "reason": "variant does not decode"
+    },
+    {
+      "stem": "Id_3_noise_sigma_10",
+      "reason": "variant does not decode"
+    },
+    {
+      "stem": "Id_3_noise_sigma_20",
+      "reason": "variant does not decode"
+    },
+    {
+      "stem": "Id_3_jpeg_q40",
+      "reason": "variant does not decode"
+    },
+    {
+      "stem": "Id_3_rot_cw_04",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_rot_ccw_04",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_rot_cw_08",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_rot_ccw_08",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_scale_080",
+      "reason": "variant does not decode"
+    },
+    {
+      "stem": "Id_3_scale_125",
+      "reason": "variant does not decode"
+    },
+    {
+      "stem": "Id_3_scale_065",
+      "reason": "variant does not decode"
+    },
+    {
+      "stem": "Id_3_shift_left_06",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_shift_up_05",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "Id_3_perspective_05",
+      "reason": "box does not describe the symbol: iou=None coverage=None area_ratio=None"
+    },
+    {
+      "stem": "barcode_2_rot_cw_08",
+      "reason": "box does not describe the symbol: iou=0.2425 coverage=1.0 area_ratio=4.123"
+    },
+    {
+      "stem": "barcode_2_rot_ccw_08",
+      "reason": "box does not describe the symbol: iou=0.2369 coverage=0.9983 area_ratio=4.212"
+    },
+    {
+      "stem": "barcode_2_perspective_05",
+      "reason": "box does not describe the symbol: iou=0.0 coverage=0.0 area_ratio=213.679"
+    },
+    {
+      "stem": "barcode_1_rot_cw_08",
+      "reason": "box does not describe the symbol: iou=0.3226 coverage=1.0 area_ratio=3.1"
+    },
+    {
+      "stem": "barcode_1_rot_ccw_08",
+      "reason": "box does not describe the symbol: iou=0.3226 coverage=1.0 area_ratio=3.1"
+    },
+    {
+      "stem": "barcode_1_perspective_05",
+      "reason": "box does not describe the symbol: iou=0.0 coverage=0.0 area_ratio=69.609"
+    },
+    {
+      "stem": "barcode_3_rot_cw_08",
+      "reason": "box does not describe the symbol: iou=0.3699 coverage=1.0 area_ratio=2.704"
+    },
+    {
+      "stem": "barcode_3_rot_ccw_08",
+      "reason": "box does not describe the symbol: iou=0.3662 coverage=1.0 area_ratio=2.731"
+    },
+    {
+      "stem": "barcode_3_perspective_05",
+      "reason": "box does not describe the symbol: iou=0.0 coverage=0.0 area_ratio=216.731"
+    }
+  ],
+  "problems": [],
+  "counts": {
+    "train": {
+      "images": 43,
+      "positive": 42,
+      "negative": 1,
+      "unmatched": []
+    },
+    "val": {
+      "images": 43,
+      "positive": 42,
+      "negative": 1,
+      "unmatched": []
+    },
+    "test": {
+      "images": 22,
+      "positive": 22,
+      "negative": 0,
+      "unmatched": []
+    }
+  },
+  "unique_original_images": 6,
+  "total_images": 108,
+  "leakage_check": "one split per source group",
+  "source_to_split": {
+    "Id_1": "train",
+    "Id_2": "val",
+    "Id_3": "test",
+    "barcode_2": "train",
+    "barcode_1": "val",
+    "barcode_3": "test",
+    "student_1_info": "train",
+    "student_2_info": "val"
+  },
+  "exact_duplicates": []
+}

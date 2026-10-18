@@ -1,0 +1,430 @@
+{
+  "generated_at": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System",
+  "total_assets": 15,
+  "assets": [
+    {
+      "original_path": "logos/wit_logo.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/logos/wit_logo.png",
+      "filename": "wit_logo.png",
+      "extension": ".png",
+      "file_size": 152529,
+      "file_hash": "d7f27f3ebb2a583b61e6d2b89f0c51135b1e27f8e4666805039e0ed42c3849f6",
+      "perceptual_hash": "cc9933c6e62a3ae4",
+      "category": "logo",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          500,
+          500
+        ],
+        "mode": "RGBA",
+        "format": "PNG",
+        "has_transparency": true,
+        "file_size": 152529,
+        "corrupt": false,
+        "barcode_detected": false,
+        "barcode_data": null,
+        "barcode_type": null,
+        "barcode_quality": null
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "Not a barcode image (category: logo)",
+      "recommended_action": "exclude_from_training"
+    },
+    {
+      "original_path": "profile/ronna_profile.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/profile/ronna_profile.png",
+      "filename": "ronna_profile.png",
+      "extension": ".png",
+      "file_size": 327843,
+      "file_hash": "e930e892859f3bfc264abca5168f05c5ca5443ae4a2246a65f761b73e5bf09fc",
+      "perceptual_hash": "d8b1436f0f6e2e12",
+      "category": "unknown",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          576,
+          576
+        ],
+        "mode": "RGBA",
+        "format": "PNG",
+        "has_transparency": true,
+        "file_size": 327843,
+        "corrupt": false,
+        "barcode_detected": false,
+        "barcode_data": null,
+        "barcode_type": null,
+        "barcode_quality": null
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "",
+      "recommended_action": "review"
+    },
+    {
+      "original_path": "profile/javy_profile.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/profile/javy_profile.png",
+      "filename": "javy_profile.png",
+      "extension": ".png",
+      "file_size": 455629,
+      "file_hash": "6bfb35082817ea59871e0cb39076d94e91a398e15357e547f227533c47791275",
+      "perceptual_hash": "c42d46b21a733b9b",
+      "category": "unknown",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          768,
+          768
+        ],
+        "mode": "RGBA",
+        "format": "PNG",
+        "has_transparency": true,
+        "file_size": 455629,
+        "corrupt": false,
+        "barcode_detected": false,
+        "barcode_data": null,
+        "barcode_type": null,
+        "barcode_quality": null
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "",
+      "recommended_action": "review"
+    },
+    {
+      "original_path": "profile/Steven_profile.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/profile/Steven_profile.png",
+      "filename": "Steven_profile.png",
+      "extension": ".png",
+      "file_size": 32883,
+      "file_hash": "0b4024811951beadde5f696b7a12ec3418945ec03436fe4f90d2af06c705b3d3",
+      "perceptual_hash": "a5e54e965a1e189b",
+      "category": "unknown",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          152,
+          152
+        ],
+        "mode": "RGBA",
+        "format": "PNG",
+        "has_transparency": true,
+        "file_size": 32883,
+        "corrupt": false,
+        "barcode_detected": false,
+        "barcode_data": null,
+        "barcode_type": null,
+        "barcode_quality": null
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "",
+      "recommended_action": "review"
+    },
+    {
+      "original_path": "manifests/asset_manifest.json",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/manifests/asset_manifest.json",
+      "filename": "asset_manifest.json",
+      "extension": ".json",
+      "file_size": 9472,
+      "file_hash": "3277436ce367e84c796b8c5bbe51b2f4202e21f22e74669a0dd7682da50fb267",
+      "perceptual_hash": "",
+      "category": "unknown",
+      "inspection": {},
+      "suitable_for_yolo": false,
+      "yolo_notes": "",
+      "recommended_action": "review"
+    },
+    {
+      "original_path": "manifests/duplicate_report.json",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/manifests/duplicate_report.json",
+      "filename": "duplicate_report.json",
+      "extension": ".json",
+      "file_size": 53,
+      "file_hash": "24ea2f5094f3c7a8fa28eaa6994421eb48271a3dfd9cce3748573bc5d36c55ff",
+      "perceptual_hash": "",
+      "category": "unknown",
+      "inspection": {},
+      "suitable_for_yolo": false,
+      "yolo_notes": "",
+      "recommended_action": "review"
+    },
+    {
+      "original_path": "barcodes/barcode_2.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_2.png",
+      "filename": "barcode_2.png",
+      "extension": ".png",
+      "file_size": 10399,
+      "file_hash": "c06a92acf3aff2bee416bc7dab86a8c5549a41403b37e209d10e2e7883c8da08",
+      "perceptual_hash": "bb6b94b34e904c95",
+      "category": "barcode",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          608,
+          187
+        ],
+        "mode": "RGBA",
+        "format": "PNG",
+        "has_transparency": true,
+        "file_size": 10399,
+        "corrupt": false,
+        "barcode_detected": true,
+        "barcode_data": "000065412",
+        "barcode_type": "CODE39",
+        "barcode_quality": 125
+      },
+      "suitable_for_yolo": true,
+      "yolo_notes": "Valid barcode detected and decoded",
+      "recommended_action": "include_in_training"
+    },
+    {
+      "original_path": "barcodes/barcode_1.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_1.png",
+      "filename": "barcode_1.png",
+      "extension": ".png",
+      "file_size": 11645,
+      "file_hash": "31bd666706b4615c1f27e50924c52fae16a72f8d2e08f9b22e0a1755ab10067a",
+      "perceptual_hash": "bf6f906ec0906e91",
+      "category": "barcode",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          562,
+          202
+        ],
+        "mode": "RGBA",
+        "format": "PNG",
+        "has_transparency": true,
+        "file_size": 11645,
+        "corrupt": false,
+        "barcode_detected": true,
+        "barcode_data": "000065902",
+        "barcode_type": "CODE39",
+        "barcode_quality": 136
+      },
+      "suitable_for_yolo": true,
+      "yolo_notes": "Valid barcode detected and decoded",
+      "recommended_action": "include_in_training"
+    },
+    {
+      "original_path": "barcodes/barcode_3.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/barcodes/barcode_3.png",
+      "filename": "barcode_3.png",
+      "extension": ".png",
+      "file_size": 18333,
+      "file_hash": "75c8e7fb092fc1a39d855a6fe02898aa349ae9de299ad5230e97a4395f63768f",
+      "perceptual_hash": "bf6f906f8090ee90",
+      "category": "barcode",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          736,
+          278
+        ],
+        "mode": "RGBA",
+        "format": "PNG",
+        "has_transparency": true,
+        "file_size": 18333,
+        "corrupt": false,
+        "barcode_detected": true,
+        "barcode_data": "000065736",
+        "barcode_type": "CODE39",
+        "barcode_quality": 197
+      },
+      "suitable_for_yolo": true,
+      "yolo_notes": "Valid barcode detected and decoded",
+      "recommended_action": "include_in_training"
+    },
+    {
+      "original_path": "backgrounds/wit_background.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/backgrounds/wit_background.png",
+      "filename": "wit_background.png",
+      "extension": ".png",
+      "file_size": 40538,
+      "file_hash": "a9c099c280b36c39e99331d188234312a4a602868fa0e2872f18b794c88f4159",
+      "perceptual_hash": "d56a403d29e0cf9e",
+      "category": "background",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          732,
+          419
+        ],
+        "mode": "RGB",
+        "format": "JPEG",
+        "has_transparency": false,
+        "file_size": 40538,
+        "corrupt": false,
+        "barcode_detected": false,
+        "barcode_data": null,
+        "barcode_type": null,
+        "barcode_quality": null
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "Not a barcode image (category: background)",
+      "recommended_action": "exclude_from_training"
+    },
+    {
+      "original_path": "images/Id_2.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_2.png",
+      "filename": "Id_2.png",
+      "extension": ".png",
+      "file_size": 615253,
+      "file_hash": "7c1f77b09ce75d5701f4708c6327e728ee1ea0914d21dc3f99e78e9d612be4c1",
+      "perceptual_hash": "e1033eec9133c36e",
+      "category": "student_photo",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          590,
+          1004
+        ],
+        "mode": "RGB",
+        "format": "PNG",
+        "has_transparency": false,
+        "file_size": 615253,
+        "corrupt": false,
+        "barcode_detected": true,
+        "barcode_data": "000065902",
+        "barcode_type": "CODE39",
+        "barcode_quality": 123
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "Not a barcode image (category: student_photo)",
+      "recommended_action": "exclude_from_training"
+    },
+    {
+      "original_path": "images/Id_3.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_3.png",
+      "filename": "Id_3.png",
+      "extension": ".png",
+      "file_size": 146258,
+      "file_hash": "bac144bf2a4ba130ed6a36be4a15c7e223b04520eaee8af844a0dc965ebbc41f",
+      "perceptual_hash": "b60778b89766847a",
+      "category": "student_photo",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          270,
+          459
+        ],
+        "mode": "RGBA",
+        "format": "PNG",
+        "has_transparency": true,
+        "file_size": 146258,
+        "corrupt": false,
+        "barcode_detected": true,
+        "barcode_data": "000065736",
+        "barcode_type": "CODE39",
+        "barcode_quality": 116,
+        "barcode_decode_attempt": "upscale2x",
+        "barcode_decode_attempts": 2
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "Not a barcode image (category: student_photo)",
+      "recommended_action": "exclude_from_training"
+    },
+    {
+      "original_path": "images/Id_1.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/Id_1.png",
+      "filename": "Id_1.png",
+      "extension": ".png",
+      "file_size": 585057,
+      "file_hash": "6991a3f9bbf8bcee2026af07fcc1446cb342d9f5f1f5790c91354b1a2b65aa73",
+      "perceptual_hash": "e64439d98676e05b",
+      "category": "student_photo",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          590,
+          1004
+        ],
+        "mode": "RGB",
+        "format": "PNG",
+        "has_transparency": false,
+        "file_size": 585057,
+        "corrupt": false,
+        "barcode_detected": true,
+        "barcode_data": "000065412",
+        "barcode_type": "CODE39",
+        "barcode_quality": 113
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "Not a barcode image (category: student_photo)",
+      "recommended_action": "exclude_from_training"
+    },
+    {
+      "original_path": "images/info/student_1_info.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/info/student_1_info.png",
+      "filename": "student_1_info.png",
+      "extension": ".png",
+      "file_size": 469028,
+      "file_hash": "2b1392a6797ac7d3de79ff9a5853a533f593efbdd50c1c7243083dcf4c243a8c",
+      "perceptual_hash": "9e3e1d43636141b7",
+      "category": "student_photo",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          1414,
+          2000
+        ],
+        "mode": "RGB",
+        "format": "PNG",
+        "has_transparency": false,
+        "file_size": 469028,
+        "corrupt": false,
+        "barcode_detected": false,
+        "barcode_data": null,
+        "barcode_type": null,
+        "barcode_quality": null
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "Not a barcode image (category: student_photo)",
+      "recommended_action": "exclude_from_training"
+    },
+    {
+      "original_path": "images/info/student_2_info.png",
+      "absolute_path": "/home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/images/info/student_2_info.png",
+      "filename": "student_2_info.png",
+      "extension": ".png",
+      "file_size": 530802,
+      "file_hash": "7a009277acc1f3da315ee46b9980c6141e9fa467cf99fe8aa9acde7de21a5395",
+      "perceptual_hash": "9e3e4c4363611cbd",
+      "category": "student_photo",
+      "inspection": {
+        "readable": true,
+        "dimensions": [
+          1414,
+          2000
+        ],
+        "mode": "RGB",
+        "format": "PNG",
+        "has_transparency": false,
+        "file_size": 530802,
+        "corrupt": false,
+        "barcode_detected": false,
+        "barcode_data": null,
+        "barcode_type": null,
+        "barcode_quality": null
+      },
+      "suitable_for_yolo": false,
+      "yolo_notes": "Not a barcode image (category: student_photo)",
+      "recommended_action": "exclude_from_training"
+    }
+  ],
+  "duplicates": {
+    "exact_duplicates": {},
+    "near_duplicates": {}
+  },
+  "summary": {
+    "by_category": {
+      "logo": 1,
+      "unknown": 5,
+      "barcode": 3,
+      "background": 1,
+      "student_photo": 5
+    },
+    "yolo_suitable": 3,
+    "yolo_unsuitable": 12,
+    "exact_duplicate_groups": 0,
+    "near_duplicate_groups": 0
+  }
+}
