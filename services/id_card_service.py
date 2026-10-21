@@ -156,6 +156,12 @@ class CardPreviewData:
 class IdCardService:
     """Generates, exports and prints student ID cards."""
 
+    #: Smallest type the name may be fitted down to, as a percentage of the card
+    #: height. It mirrors :meth:`models.id_card.CardLayout.clamp`'s floor for
+    #: ``name_size_pct``, so the renderer never produces a name smaller than the
+    #: smallest an operator can set by hand.
+    NAME_SIZE_FLOOR_PCT = 0.055
+
     def __init__(self, barcode_service: Optional[BarcodeGeneratorService] = None):
         self.card_repo = IdCardRepository()
         self.student_service = StudentService()
@@ -403,8 +409,15 @@ class IdCardService:
             value = getattr(row, "contact_value", None)
             if value is None and isinstance(row, dict):
                 value = row.get("contact_value")
-            if key and value:
-                contacts.setdefault(str(key), str(value))
+            if not key or not value:
+                continue
+            # ``StudentContact.contact_type`` is a ``ContactType`` enum, so
+            # ``str(key)`` is "ContactType.PHONE", never "phone". Keying the map
+            # with it made every lookup in :meth:`_back_fields` miss, which is
+            # why a card printed "— not on file —" for an emergency contact that
+            # was in fact recorded against the student.
+            name = str(getattr(key, "value", key))
+            contacts.setdefault(name, str(value))
         return contacts
 
     def _safe_academic_year(self, student) -> Optional[str]:
@@ -701,6 +714,52 @@ class IdCardService:
         )
         return metrics_cache.get(floor_pct, font)
 
+    def _fit_name(
+        self, painter: QPainter, card_height: float, dpi: int, name: str,
+        width: float, *, reserved: float, pct: float,
+    ) -> Tuple[QFont, List[str], float]:
+        """The largest name type at or below ``pct`` whose block fits ``reserved``.
+
+        The name is the one field that is never elided, so it may wrap -- but it
+        must not wrap at the cost of an identity field falling off the card. The
+        caller has already reserved the height its field rows need, so the choice
+        made here is between type sizes, not between a field and a name.
+
+        Returns ``(font, lines, line_height)``. When even
+        :attr:`NAME_SIZE_FLOOR_PCT` does not fit, the floor is returned and the
+        problem is logged: the caller's own drop path then reports it, rather
+        than this silently shrinking past a size an operator could not have
+        chosen.
+        """
+        text_width = max(1.0, width * 0.99)
+        floor = min(self.NAME_SIZE_FLOOR_PCT, pct)
+
+        def measure(candidate_pct: float) -> Tuple[QFont, List[str], float]:
+            font = self._font(candidate_pct, card_height, dpi, bold=True)
+            previous = painter.font()
+            painter.setFont(font)
+            metrics = painter.fontMetrics()
+            lines = _wrap_text(metrics, name, int(text_width))
+            result = (font, lines, metrics.height() * 1.06)
+            painter.setFont(previous)
+            return result
+
+        candidate = pct
+        while True:
+            trial = measure(candidate)
+            if trial[1] and len(trial[1]) * trial[2] <= reserved:
+                return trial
+            if candidate <= floor + 1e-9:
+                break
+            candidate = max(floor, candidate - 0.004)
+
+        logger.warning(
+            "The name %r needs more room than the text block can give it once every "
+            "identity field is reserved; some fields may be dropped",
+            name[:48],
+        )
+        return measure(floor)
+
     def _draw_text_block(
         self, painter: QPainter, card: QRectF, box: QRectF, content: CardContent,
         template: CardTemplate, layout: CardLayout, dpi: int,
@@ -729,14 +788,57 @@ class IdCardService:
         card_h = card.height()
         centred = layout.text_align == "center"
 
+        #: Smallest value type the flow will shrink to before it starts dropping
+        #: fields. A name may be sized around this; a field may not.
+        min_value_pct = 0.044
+
+        ordered = [f for f in content.fields if f.present] + [
+            f for f in content.fields if not f.present
+        ]
+        label_font = self._font(layout.label_size_pct, card_h, dpi)
+        value_font = self._font(layout.value_size_pct, card_h, dpi, bold=True)
+
+        # The rows are grouped before the name is sized. Grouping depends only on
+        # the value font and the box width -- never on the cursor -- so deciding
+        # them first costs nothing and lets the name be fitted against a block
+        # that is known to be big enough for every field.
+        rows = self._flow_rows(painter, ordered, value_font, box.width()) if ordered else []
+
+        # A row holds a label band above a value band, so the height a row needs
+        # is the sum of the two type sizes -- not the value size alone, which is
+        # what let the label band overlap the row above it.
+        def needed_height() -> float:
+            return (
+                _font_metrics_height(painter, label_font)
+                + _font_metrics_height(painter, value_font) * 1.15
+            )
+
         cursor = box.top()
 
         if content.full_name:
-            painter.setFont(self._font(layout.name_size_pct, card_h, dpi, bold=True))
+            # The name is the field that may wrap, but it must not wrap at the
+            # cost of pushing an identity field off the card. Sizing it against
+            # the room the rows actually need is what makes two cards for
+            # different students carry the same fields: before this, "Steven
+            # Anthony M. Oquiana" wrapped to two lines, ate the last row, and
+            # the flow dropped Year Level and Section, while a shorter name kept
+            # them.
+            floor_rows = len(rows) * (
+                _font_metrics_height(painter, label_font)
+                + _font_metrics_height(
+                    painter, self._font(min_value_pct, card_h, dpi, bold=True)
+                ) * 1.15
+            )
+            # The rule and the gaps either side of it, as a fraction of this box
+            # so they stay in proportion with whatever height it has.
+            name_overhead = box.height() * (0.030 + 0.055)
+            name_font, lines, line_h = self._fit_name(
+                painter, card_h, dpi, content.full_name, box.width(),
+                reserved=box.height() - name_overhead - floor_rows,
+                pct=layout.name_size_pct,
+            )
+            painter.setFont(name_font)
             painter.setPen(QColor("#0F172A"))
-            metrics = painter.fontMetrics()
-            line_h = metrics.height() * 1.06
-            lines = _wrap_text(metrics, content.full_name, int(box.width() * 0.99))
             for line in lines:
                 if cursor + line_h > box.bottom():
                     logger.warning(
@@ -758,35 +860,18 @@ class IdCardService:
             painter.drawLine(QPointF(box.left(), rule_y), QPointF(box.right(), rule_y))
             cursor = rule_y + box.height() * 0.055
 
-        ordered = [f for f in content.fields if f.present] + [
-            f for f in content.fields if not f.present
-        ]
-        if not ordered:
+        if not rows:
             return
 
-        label_font = self._font(layout.label_size_pct, card_h, dpi)
-        value_font = self._font(layout.value_size_pct, card_h, dpi, bold=True)
-
-        rows = self._flow_rows(painter, ordered, value_font, box.width())
         available = box.bottom() - cursor
-        if available <= 0 or not rows:
+        if available <= 0:
             logger.warning("No room left on the card for the identity fields")
             return
-
-        # A row holds a label band above a value band, so the height a row needs
-        # is the sum of the two type sizes -- not the value size alone, which is
-        # what let the label band overlap the row above it.
-        def needed_height() -> float:
-            return (
-                _font_metrics_height(painter, label_font)
-                + _font_metrics_height(painter, value_font) * 1.15
-            )
 
         # Share the leftover space evenly, then shrink type only if a row still
         # does not fit. A field is dropped only when it cannot be drawn at a
         # legible size, and that drop is logged rather than hidden.
         row_h = min(available / len(rows), needed_height() * 1.10)
-        min_value_pct = 0.044
         while rows and row_h < needed_height() and layout.value_size_pct > min_value_pct:
             layout.value_size_pct = max(min_value_pct, layout.value_size_pct - 0.003)
             value_font = self._font(layout.value_size_pct, card_h, dpi, bold=True)

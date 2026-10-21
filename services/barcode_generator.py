@@ -25,20 +25,34 @@ class BarcodeGeneratorService:
         """The payload to encode for ``student``.
 
         The project's physical ID cards are CODE39 and carry a zero-padded
-        numeric payload, and ``students.barcode_payload`` already stores exactly
-        that value (verified by decoding the card assets, not by guessing from a
-        filename). That stored payload wins whenever it exists, so a newly
-        printed card is byte-identical to the one already in a student's wallet
-        and the scanner keeps resolving it.
+        9-digit numeric payload (e.g., ``000065412``). This matches the
+        ``students.barcode_payload`` column which stores exactly that value.
 
-        The ``BARCODE_PREFIX`` scheme is only a fallback for a student who has
-        never had a payload assigned. Generating the prefix form for a student
-        who already has a card would silently produce a second, different
-        identity for the same person.
+        For students who already have a ``barcode_payload`` assigned, that exact
+        value is used so a newly printed card is byte-identical to the one
+        already in the student's wallet.
+
+        For new students without a payload, we generate a zero-padded 9-digit
+        reference number to match the physical card convention. The legacy
+        ``BARCODE_PREFIX`` (``WIT:STUDENT:``) with CODE128 is no longer used
+        because it produces barcodes that cannot be scanned by the existing
+        readers.
         """
         if getattr(student, "barcode_payload", None):
             return student.barcode_payload
-        return f"{settings.BARCODE_PREFIX}{student.reference_number}"
+        # Generate zero-padded 9-digit reference number to match physical cards
+        ref = getattr(student, "reference_number", "").strip()
+        if ref.isdigit():
+            return ref.zfill(9)
+        # Fallback: hash the student_id to produce a deterministic 9-digit number
+        student_id = getattr(student, "student_id", "")
+        if student_id:
+            # Extract digits from student_id (e.g., "WIT-2024-001" -> "2024001")
+            digits = "".join(ch for ch in student_id if ch.isdigit())
+            if digits:
+                return digits.zfill(9)
+        # Last resort: return a placeholder that will fail validation visibly
+        return "000000000"
 
     def generate_barcode_image(
         self,
@@ -51,7 +65,7 @@ class BarcodeGeneratorService:
         write_text: bool = True,
         text_distance: float = 5,
     ) -> bool:
-        """Encode ``barcode_value`` as a barcode image.
+        """Encode ``barcode_value`` as a CODE39 barcode image.
 
         ``module_width``, ``module_height`` and ``quiet_zone`` are in
         **millimetres** and override the configured defaults. The card renderer
@@ -78,6 +92,13 @@ class BarcodeGeneratorService:
         python-barcode's defaults, and the configured
         ``BARCODE_MODULE_WIDTH``/``BARCODE_MODULE_HEIGHT`` had no effect on the
         output at all.
+
+        CODE39 is used for all students to match the physical ID cards.
+        ``add_checksum=False`` is required: python-barcode appends a mod-43 check
+        character by default, which turns the payload ``000065412`` into
+        ``000065412I``. The physical cards decode to the bare value, so a
+        generated card would otherwise encode a different identity and the
+        scanner would report "unknown barcode" for it.
         """
         try:
             options = {
@@ -92,19 +113,7 @@ class BarcodeGeneratorService:
             }
 
             writer = ImageWriter()
-
-            # CODE39 is what the supplied card assets decode as, so it is the
-            # default for a student whose payload came from a real card.
-            #
-            # add_checksum must be False: python-barcode appends a mod-43 check
-            # character by default, which turns the payload 000065412 into
-            # 000065412I. The physical cards decode to the bare value, so a
-            # generated card would otherwise encode a different identity and
-            # the scanner would report "unknown barcode" for it.
-            if barcode_type == BarcodeType.CODE39:
-                barcode = Code39(barcode_value, writer=writer, add_checksum=False)
-            else:
-                barcode = Code128(barcode_value, writer=writer)
+            barcode = Code39(barcode_value, writer=writer, add_checksum=False)
             barcode.save(str(output_path.with_suffix("")), options=options)
             return True
         except Exception as e:
@@ -113,12 +122,12 @@ class BarcodeGeneratorService:
 
     @staticmethod
     def barcode_type_for(student: Student) -> BarcodeType:
-        """Symbology for this student: CODE39 when a real payload is assigned."""
-        return (
-            BarcodeType.CODE39
-            if getattr(student, "barcode_payload", None)
-            else BarcodeType.CODE128
-        )
+        """Symbology for this student: always CODE39 to match physical cards.
+
+        The physical ID cards use CODE39. Using CODE128 with a prefix would
+        produce barcodes that the existing scanners cannot read.
+        """
+        return BarcodeType.CODE39
 
     def generate_for_student(self, student_id: int, generated_by: int = None) -> Optional[Barcode]:
         student = self.student_service.get_student(student_id)

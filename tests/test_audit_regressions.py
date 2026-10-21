@@ -284,16 +284,15 @@ class TestBug006BarcodeConvention:
         assert generator.generate_barcode_value(student) == "000065412"
         assert generator.barcode_type_for(student).value == "CODE39"
 
-    def test_generator_falls_back_to_the_prefix_without_a_payload(self):
+    def test_generator_uses_zero_padded_reference_without_a_payload(self):
         from models.student import Student
         from services.barcode_generator import BarcodeGeneratorService
 
         generator = BarcodeGeneratorService.__new__(BarcodeGeneratorService)
         student = Student(reference_number="65412", barcode_payload=None)
-        assert generator.generate_barcode_value(student) == (
-            f"{settings.BARCODE_PREFIX}65412"
-        )
-        assert generator.barcode_type_for(student).value == "CODE128"
+        # Now generates zero-padded 9-digit reference to match physical cards
+        assert generator.generate_barcode_value(student) == "000065412"
+        assert generator.barcode_type_for(student).value == "CODE39"
 
     def test_a_regenerated_barcode_round_trips_to_the_stored_payload(self):
         """Generating an image for a real student must produce a readable code."""

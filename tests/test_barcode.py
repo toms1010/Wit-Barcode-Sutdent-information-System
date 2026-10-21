@@ -11,11 +11,10 @@ from models.barcode import Barcode, BarcodeType
 
 
 class TestBarcodeGenerator:
-    @patch('services.barcode_generator.Code128')
-    def test_generate_barcode_image(self, mock_code128):
-        mock_writer = Mock()
-        mock_code128_instance = Mock()
-        mock_code128.return_value = mock_code128_instance
+    @patch('services.barcode_generator.Code39')
+    def test_generate_barcode_image(self, mock_code39):
+        mock_code39_instance = Mock()
+        mock_code39.return_value = mock_code39_instance
         
         service = BarcodeGeneratorService()
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -24,9 +23,14 @@ class TestBarcodeGenerator:
             result = service.generate_barcode_image("TEST123", Path(tmpdir) / "test.png")
             
             assert result is True
-            mock_code128_instance.save.assert_called_once()
+            mock_code39_instance.save.assert_called_once()
+            # Verify CODE39 is used with add_checksum=False
+            args, kwargs = mock_code39.call_args
+            assert args[0] == "TEST123"
+            assert kwargs.get('add_checksum') is False
     
-    def test_generate_barcode_value(self):
+    def test_generate_barcode_value_with_existing_payload(self):
+        """Test that existing barcode_payload is used directly."""
         service = BarcodeGeneratorService()
         student = Student(
             id=1,
@@ -35,10 +39,59 @@ class TestBarcodeGenerator:
             last_name="Doe",
             program="Computer Engineering",
             year_level=YearLevel.THIRD_YEAR,
+            barcode_payload="000065412",  # Pre-assigned payload
         )
         
         value = service.generate_barcode_value(student)
-        assert value == "WIT:STUDENT:65412"
+        assert value == "000065412"
+    
+    def test_generate_barcode_value_from_reference_number(self):
+        """Test that zero-padded 9-digit reference is generated when no payload."""
+        service = BarcodeGeneratorService()
+        student = Student(
+            id=1,
+            reference_number="65412",
+            first_name="John",
+            last_name="Doe",
+            program="Computer Engineering",
+            year_level=YearLevel.THIRD_YEAR,
+            # No barcode_payload assigned
+        )
+        
+        value = service.generate_barcode_value(student)
+        assert value == "000065412"
+    
+    def test_generate_barcode_value_from_student_id_fallback(self):
+        """Test fallback to student_id digits when reference_number is not numeric."""
+        service = BarcodeGeneratorService()
+        student = Student(
+            id=1,
+            reference_number="ABC123",
+            first_name="John",
+            last_name="Doe",
+            program="Computer Engineering",
+            year_level=YearLevel.THIRD_YEAR,
+            student_id="WIT-2024-001",
+        )
+        
+        value = service.generate_barcode_value(student)
+        assert value == "2024001".zfill(9)  # "002024001"
+    
+    def test_barcode_type_is_always_code39(self):
+        """Test that CODE39 is used for all students to match physical cards."""
+        service = BarcodeGeneratorService()
+        student_with_payload = Student(
+            id=1,
+            reference_number="65412",
+            barcode_payload="000065412",
+        )
+        student_without_payload = Student(
+            id=2,
+            reference_number="65902",
+        )
+        
+        assert service.barcode_type_for(student_with_payload) == BarcodeType.CODE39
+        assert service.barcode_type_for(student_without_payload) == BarcodeType.CODE39
 
 
 class TestBarcodeDecoder:
@@ -90,8 +143,9 @@ class TestBarcodeGenerationIntegration:
             barcode = service.generate_for_student(1, generated_by=1)
             
             assert barcode is not None
-            assert barcode.barcode_value == "WIT:STUDENT:65412"
+            assert barcode.barcode_value == "000065412"
             assert barcode.student_id == 1
+            assert barcode.barcode_type == BarcodeType.CODE39
 
 
 if __name__ == "__main__":

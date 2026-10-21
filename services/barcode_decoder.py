@@ -1,11 +1,77 @@
 import cv2
 import numpy as np
 from pyzbar import pyzbar
-from typing import Optional, List, Tuple
+from typing import NamedTuple, Optional, List, Tuple, Callable
 import logging
 from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
+
+
+class BarcodeRect(NamedTuple):
+    """A symbol's box: ``(left, top, width, height)``.
+
+    pyzbar hands back a ``Rect`` namedtuple and the rest of this project was
+    written against that shape -- ``rect.left``, ``rect.width`` -- while the
+    zxing reader had to build the same box from four plain corner points.
+    Rather than force every caller to remember which reader produced a result,
+    both readers now report this one type. It is a ``NamedTuple``, so it also
+    unpacks and indexes exactly like the plain four-tuple it replaced:
+
+        left, top, width, height = item.bbox
+        item.bbox[2] == item.bbox.width
+    """
+
+    left: int
+    top: int
+    width: int
+    height: int
+
+#: The second reader. zxing-cpp reads small, blurred and low-contrast symbols
+#: that zbar gives up on, which is the difference between "the card is in the
+#: frame" and "the card is far enough away to be unreadable".
+#:
+#: Measured on this project's own cards (symbol width in frame pixels, read
+#: straight off a scaled band):
+#:
+#:     card A  zbar 210 px   zxing 183 px
+#:     card B  zbar 191 px   zxing 167 px
+#:     card C  zbar 204 px (interpolation)   zxing 204 px (untouched)
+#:
+#: and zxing read all three full ID cards *without* any preprocessing, where
+#: zbar needed an interpolated copy of card C. The dependency is optional: when
+#: it is missing the decoder falls back to zbar alone and everything else in
+#: the application keeps working.
+try:  # pragma: no cover - the import itself is the test
+    import zxingcpp
+
+    ZXING_AVAILABLE = True
+except Exception:  # pragma: no cover - optional dependency may be absent
+    zxingcpp = None
+    ZXING_AVAILABLE = False
+    logger.info(
+        "zxing-cpp is not installed; barcode decoding falls back to pyzbar alone. "
+        "Install it (pip install zxing-cpp) to read smaller symbols."
+    )
+
+#: Symbology names normalised to the spelling pyzbar uses, so the decoder, the
+#: database, the UI and the reports all speak one vocabulary. pyzbar reports
+#: "CODE39"; zxing reports "Code39".
+ZXING_FORMAT_NAMES = {
+    "Codabar": "CODABAR",
+    "Code39": "CODE39",
+    "Code39Ext": "CODE39",
+    "Code93": "CODE93",
+    "Code128": "CODE128",
+    "DataMatrix": "DATAMATRIX",
+    "EAN-13": "EAN-13",
+    "EAN-8": "EAN-8",
+    "ITF": "ITF",
+    "PDF417": "PDF417",
+    "QRCode": "QRCODE",
+    "UPC-A": "UPC-A",
+    "UPC-E": "UPC-E",
+}
 
 #: pyzbar reports degenerate rectangles (0 x 0) on some preprocessing variants
 #: of the same image. They are decoder noise, never a usable symbol, and they
@@ -32,15 +98,73 @@ ROTATION_ANGLES_DEG = (-9.0, -6.0, -3.0, 3.0, 6.0, 9.0)
 MAX_UPSCALED_CROP_WIDTH_PX = 1024
 
 #: Interpolation factors tried, in order. 2x is the one that recovers the
-#: measured band; 3x covers crops that arrive even smaller.
-UPSCALE_FACTORS = (2, 3)
+#: measured band; 3x covers crops that arrive even smaller, and 4x is the deep
+#: fallback for a symbol that is only a handful of pixels per module.
+UPSCALE_FACTORS = (2, 3, 4)
+
+#: Strength and radius of the unsharp mask applied to an interpolated crop.
+#:
+#: Interpolation alone re-samples the bars; it does not restore the contrast
+#: between a bar and its neighbour, so a decoder that thresholds on a local
+#: average still sees a washed-out symbol. Sharpening after the enlargement
+#: gave the measured recovery: card B's symbol at 167 px, which no zbar
+#: variant read, became readable with 3x Lanczos followed by this mask.
+UNSHARP_AMOUNT = 1.5
+UNSHARP_RADIUS = 1.0
+
+#: Widest crop the CODE39 reconstruction is allowed to look at. The
+#: reconstruction is a last resort -- it only runs after both readers have
+#: failed -- and its cost grows with the crop, so it is not worth running on
+#: a wide crop that a reader would have read anyway.
+MAX_RECOVERY_CROP_WIDTH_PX = 760
+
+
+def boxes_touch(a: BarcodeRect, b: BarcodeRect, slack: int = 4) -> bool:
+    """True when two rectangles overlap, or nearly so.
+
+    "Nearly" matters because the two readers do not agree on a symbol's
+    exact extent: one reports the inked bars, the other the whole symbol
+    including its quiet zone, and a couple of pixels of difference must not
+    make the same physical symbol look like two.
+    """
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    return not (
+        ax + aw + slack <= bx
+        or bx + bw + slack <= ax
+        or ay + ah + slack <= by
+        or by + bh + slack <= ay
+    )
+
+
+def zxing_polygon(obj) -> List[Tuple[int, int]]:
+    """The four corners of a zxing result, in image pixels.
+
+    zxing-cpp exposes the corners as named attributes
+    (``top_left``/``top_right``/``bottom_right``/``bottom_left``) rather than
+    as an iterable sequence, and the attribute set has changed between
+    releases, so a missing corner yields no polygon at all rather than a
+    partial one. The corner order is the same either way: clockwise from the
+    top left.
+    """
+    position = getattr(obj, "position", None)
+    if position is None:
+        return []
+
+    corners: List[Tuple[int, int]] = []
+    for name in ("top_left", "top_right", "bottom_right", "bottom_left"):
+        point = getattr(position, name, None)
+        if point is None:
+            return []
+        corners.append((int(point.x), int(point.y)))
+    return corners
 
 
 @dataclass
 class DecodedBarcode:
     data: str
     type: str
-    bbox: Tuple[int, int, int, int]
+    bbox: BarcodeRect
     polygon: List[Tuple[int, int]]
     quality: int
     #: Which prepared image produced this symbol ("original", "upscale2x", ...).
@@ -53,16 +177,61 @@ class DecodedBarcode:
     #: image actually handed to zbar, which for an interpolation attempt is
     #: larger than the caller's crop; this is the same box mapped back, so a
     #: caller annotating an image never has to know which variant won.
-    source_bbox: Optional[Tuple[int, int, int, int]] = None
+    source_bbox: Optional[BarcodeRect] = None
     source_polygon: List[Tuple[int, int]] = field(default_factory=list)
 
 
-@dataclass
 class DecodeAttempt:
-    """One prepared image handed to zbar, and how it was produced."""
+    """One prepared image handed to a reader, and how it was produced.
 
-    name: str
-    image: np.ndarray
+    The image is built **on demand**. The chain of attempts contains several
+    enlargements and filters, and building them all costs about 300 ms on a
+    740x163 crop -- paid on every frame, whether or not the first attempt
+    already answered. A reader that needs the deep variants should pay for
+    them; one that reads the crop as-is should not.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        image: Optional[np.ndarray] = None,
+        factory: Optional[Callable[[], np.ndarray]] = None,
+    ):
+        self.name = name
+        self._image = image
+        self._factory = factory
+        self._built: Optional[np.ndarray] = None
+
+    @property
+    def image(self) -> np.ndarray:
+        """The prepared image, built once and remembered."""
+        if self._built is None:
+            if self._image is not None:
+                self._built = self._image
+            elif self._factory is not None:
+                self._built = self._factory()
+            else:
+                raise ValueError(f"attempt {self.name!r} has no image to build")
+        return self._built
+
+    def __repr__(self) -> str:  # pragma: no cover - diagnostics only
+        return f"DecodeAttempt({self.name!r})"
+
+
+def unsharp(image: np.ndarray, amount: float = UNSHARP_AMOUNT,
+            radius: float = UNSHARP_RADIUS) -> np.ndarray:
+    """Sharpen an image without moving its edges.
+
+    Interpolation re-samples the bars but leaves them low-contrast, because a
+    narrow bar that occupied a single source pixel now occupies a couple of
+    soft ones. A decoder that thresholds on a local average sees a washed-out
+    symbol. Adding the local contrast back is what turned card B's 167 px
+    symbol -- which no zbar variant read -- into a readable one.
+    """
+    if image is None or image.size == 0:
+        return image
+    blurred = cv2.GaussianBlur(image, (0, 0), max(0.1, radius))
+    return cv2.addWeighted(image, 1.0 + amount, blurred, -amount, 0)
 
 
 def rotate_preserve(image: np.ndarray, angle_deg: float) -> Optional[np.ndarray]:
@@ -113,12 +282,12 @@ def _annotate_geometry(item: DecodedBarcode, attempt: str, scale: float) -> None
     item.attempt = attempt
     item.scale = scale
     if scale == 1.0:
-        item.source_bbox = tuple(item.bbox)
+        item.source_bbox = BarcodeRect(*item.bbox)
         item.source_polygon = list(item.polygon)
         return
 
     left, top, width, height = item.bbox
-    item.source_bbox = (
+    item.source_bbox = BarcodeRect(
         int(round(left / scale)),
         int(round(top / scale)),
         max(1, int(round(width / scale))),
@@ -185,12 +354,85 @@ class BarcodeDecoderService:
         self.last_decoded = None
         self.last_decode_time = 0
 
-    def _decode_variant(self, image: np.ndarray, variant: str) -> List[DecodedBarcode]:
-        """Run zbar on one prepared image and keep only real symbols."""
+    # -- readers -------------------------------------------------------------
+
+    @staticmethod
+    def _read_zxing(
+        image: np.ndarray,
+        binarizer=None,
+    ) -> Tuple[List[DecodedBarcode], List[BarcodeRect]]:
+        """Read every symbol zxing-cpp can see in ``image``.
+
+        Returns the symbols zxing vouches for, and the places where it found
+        something it *rejected*.
+
+        Results zxing reports as *invalid* are not returned as payloads. zxing
+        sets that flag when the symbol's own checksum or format does not hold,
+        which is the signature of a misread -- exactly the failure this
+        application cannot afford, because a wrong payload is a real student's
+        card attributed to the wrong person. A reader that cannot vouch for a
+        hit must not return it.
+
+        The rejected places are returned anyway, because "there is a symbol
+        here and I cannot vouch for it" is information the caller needs: a
+        second reading of that same spot is not a second opinion, it is the
+        same doubtful symbol read less carefully.
+
+        ``binarizer`` selects how the image is thresholded. zxing's default
+        (local average) copes with uneven lighting, which is what a card held
+        under a desk lamp looks like; the fixed threshold copes with high
+        contrast, which is what a second symbol in the same frame looks like.
+        Neither finds everything the other does.
+        """
+        if not ZXING_AVAILABLE:
+            return [], []
+        options = {} if binarizer is None else {"binarizer": binarizer}
+        try:
+            decoded_objects = zxingcpp.read_barcodes(image, **options)
+        except Exception as e:  # noqa: BLE001 - a reader failure is not fatal
+            logger.error(f"zxing decode failed: {e}")
+            return [], []
+
+        results: List[DecodedBarcode] = []
+        rejected: List[BarcodeRect] = []
+        for obj in decoded_objects:
+            polygon = zxing_polygon(obj)
+            if not polygon:
+                continue
+            xs = [p[0] for p in polygon]
+            ys = [p[1] for p in polygon]
+            left, top = min(xs), min(ys)
+            width, height = max(xs) - left, max(ys) - top
+            if width < MIN_SYMBOL_SIDE_PX or height < MIN_SYMBOL_SIDE_PX:
+                continue
+            fmt = getattr(obj, "format", None)
+            name = getattr(fmt, "name", "") or ""
+            if not getattr(obj, "valid", True):
+                logger.debug(
+                    "Discarding zxing result %r with error %s",
+                    getattr(obj, "text", None),
+                    getattr(obj, "error", None),
+                )
+                rejected.append(BarcodeRect(left, top, width, height))
+                continue
+            results.append(DecodedBarcode(
+                data=str(getattr(obj, "text", "")),
+                type=ZXING_FORMAT_NAMES.get(name, name.replace(" ", "").upper()),
+                bbox=BarcodeRect(left, top, width, height),
+                polygon=polygon,
+                # zxing reports no per-symbol quality figure; the payload
+                # length is the only honest proxy available.
+                quality=len(str(getattr(obj, "text", ""))),
+            ))
+        return results, rejected
+
+    @staticmethod
+    def _read_zbar(image: np.ndarray) -> List[DecodedBarcode]:
+        """Read every symbol pyzbar can see in ``image``."""
         try:
             decoded_objects = pyzbar.decode(image)
-        except Exception as e:
-            logger.error(f"Barcode decoding failed on {variant} variant: {e}")
+        except Exception as e:  # noqa: BLE001 - a reader failure is not fatal
+            logger.error(f"Barcode decoding failed: {e}")
             return []
 
         results = []
@@ -200,9 +442,7 @@ class BarcodeDecoderService:
             # passed straight through.
             if obj.rect.width < MIN_SYMBOL_SIDE_PX or obj.rect.height < MIN_SYMBOL_SIDE_PX:
                 logger.debug(
-                    "Discarding degenerate barcode rect %s from %s variant",
-                    obj.rect,
-                    variant,
+                    "Discarding degenerate barcode rect %s", obj.rect,
                 )
                 continue
             try:
@@ -212,11 +452,60 @@ class BarcodeDecoderService:
             results.append(DecodedBarcode(
                 data=data,
                 type=obj.type,
-                bbox=obj.rect,
+                bbox=BarcodeRect(
+                    int(obj.rect.left), int(obj.rect.top),
+                    int(obj.rect.width), int(obj.rect.height),
+                ),
                 polygon=[(p.x, p.y) for p in obj.polygon] if obj.polygon else [],
                 quality=getattr(obj, "quality", 0),
             ))
         return results
+
+    def _decode_variant(self, image: np.ndarray, variant: str) -> List[DecodedBarcode]:
+        """Run the readers on one prepared image and keep only real symbols.
+
+        zxing-cpp goes first because it is the stronger reader on small,
+        blurred and low-contrast symbols; pyzbar is the fallback, and is the
+        only reader when zxing-cpp is not installed.
+
+        zxing is asked twice, with two different thresholdings, for one reason:
+        one thresholding localises one symbol well and then stops, so on its
+        own it cannot see that a frame holds two cards. The pipeline's whole
+        protection against "which of these two students is this?" rests on the
+        decoder reporting both payloads, and a reader that structurally cannot
+        report more than one leaves that protection switched off.
+
+        The merge is deliberately narrow:
+
+        * zxing's payloads are authoritative and keep their order, so the
+          value a caller verifies is the one the stronger reader vouched for;
+        * a payload that sits on the *same* symbol zxing already reported is
+          dropped, so a second reading of the same bars cannot turn one
+          symbol into two;
+        * a payload on a spot zxing explicitly *rejected* is dropped, because
+          zxing's verdict there was that the symbol does not check out, and a
+          reader with no checksum to fail is exactly how a wrong payload gets
+          in;
+        * anything else is a different symbol, and is reported.
+        """
+        if not ZXING_AVAILABLE:
+            return self._read_zbar(image)
+
+        found, rejected = self._read_zxing(image)
+        if not found:
+            return self._read_zbar(image)
+
+        merged = list(found)
+        extra, _ = self._read_zxing(
+            image, binarizer=zxingcpp.Binarizer.FixedThreshold
+        )
+        for item in extra:
+            if any(boxes_touch(item.bbox, spot) for spot in rejected):
+                continue
+            if any(boxes_touch(item.bbox, kept.bbox) for kept in found):
+                continue
+            merged.append(item)
+        return merged
 
     def decode(self, image: np.ndarray) -> List[DecodedBarcode]:
         """Decode a crop, trying colour first and then greyscale.
@@ -288,6 +577,35 @@ class BarcodeDecoderService:
 
     # -- ordered, bounded decoding -------------------------------------------
 
+    @staticmethod
+    def _upscale(image: np.ndarray, factor: int) -> np.ndarray:
+        """Enlarge an image for the decoder, preserving the bar edges.
+
+        Lanczos-4, not bicubic and not nearest. The decoder measures the
+        *transition* between a bar and its neighbour, so the resampler has to
+        keep a sharp step; Lanczos-4 measured better than bicubic on every
+        card in this project, and nearest is worse still because it turns the
+        bars into blocks with no transition at all to sample.
+        """
+        return cv2.resize(
+            image, None, fx=factor, fy=factor, interpolation=cv2.INTER_LANCZOS4
+        )
+
+    def _sharp_upscaled(self, image: np.ndarray, factor: int) -> np.ndarray:
+        """An enlarged *and* sharpened greyscale copy.
+
+        Interpolation re-samples the bars but leaves them low-contrast: a bar
+        that occupied a single source pixel now occupies a couple of soft ones,
+        and a reader that thresholds on a local average sees a washed-out
+        symbol. Adding the local contrast back is what turned card B's 167 px
+        symbol -- which no variant read -- into a readable one.
+
+        The greyscale conversion is deliberate: sharpening each colour channel
+        separately amplifies chroma noise on a photographed card, and both
+        readers threshold on luminance anyway.
+        """
+        return unsharp(self._gray(self._upscale(image, factor)))
+
     def build_attempts(
         self,
         image: np.ndarray,
@@ -301,79 +619,136 @@ class BarcodeDecoderService:
         first -- and because the loop stops at the first success, the extra
         variants cost nothing on a frame that reads cleanly.
 
-        Each following step changes exactly one thing, and the steps that are
-        known to destroy thin bars (morphological closing, heavy denoise) are
-        deliberately absent. The order was chosen from measurement rather than
-        taste: across the 93 decodes recorded in ``reports/robustness_matrix.json``
-        only ``original``, ``clahe`` and ``otsu`` ever won, so the freed slots
-        (the ``gray`` entry used to hand zbar the *original* pixels a second
-        time) go to interpolation, the one step that adds samples instead of
-        rearranging the ones already there.
+        The order was chosen from measurement on this project's own three cards
+        rather than from taste. The decisive change was the arrival of a second
+        reader: zxing-cpp reads symbols down to ~167-183 px of symbol width
+        where pyzbar needed ~191-210 px, and it does so on the *untouched*
+        pixels. Interpolation is therefore no longer the first thing to try --
+        it is the second, and it exists to catch what the reader still cannot
+        see.
 
-        Interpolating and filtering are complementary rather than alternatives:
-        on ``Id_3.png`` a plain 2x upscale reads the card, while on the same
-        card composited at scanning distance only 2x-then-CLAHE reads it. Both
-        orders of that pair are therefore present, plain first because it is the
-        cheaper of the two.
+        The first six attempts are the ones a crop actually gets
+        (``SCAN_MAX_DECODE_ATTEMPTS``), so they carry all the weight:
+
+        ``original``
+            The untouched colour crop.
+        ``gray``
+            The same pixels as greyscale. Not redundant: on the real card
+            ``assets/images/Id_1.png`` pyzbar reads the CODE39 symbol from the
+            BGR image but returns nothing on the greyscale conversion of the
+            very same pixels.
+        ``upscale2x``
+            Lanczos-4 enlargement, no sharpening.
+        ``upscale2x_unsharp``
+            The same enlargement with the local contrast restored.
+        ``upscale3x_unsharp``
+            Deeper still, for symbols that arrive at a handful of pixels per
+            module.
+        ``otsu``
+            Global threshold. It won more of the recorded decodes than any
+            other filter, and it is the one filter that survives a very small
+            symbol: a local threshold needs enough samples to estimate a
+            local average.
+
+        Everything after that is only reached by a caller that allows more
+        attempts. ``clahe`` follows ``otsu`` because it is the other filter
+        with a recorded win, and the deep variants come after it.
 
         Rotations are appended last and only on request: each one costs a full
-        zbar pass, so a caller pays for them only after the cheap variants have
-        already failed.
+        reader pass, so a caller pays for them only after the cheap variants
+        have already failed.
         """
         if image is None or image.size == 0:
             return []
 
+        # The prepared images are built lazily: a crop that reads as-is must
+        # not pay for four enlargements and four filters it will never use.
+        # ``gray`` is cached because five of the variants need it.
+        gray_cache: List[np.ndarray] = []
+
+        def gray() -> np.ndarray:
+            if not gray_cache:
+                gray_cache.append(self._gray(image))
+            return gray_cache[0]
+
         attempts: List[DecodeAttempt] = [DecodeAttempt("original", image)]
-        gray = self._gray(image)
 
-        if image.shape[1] < MAX_UPSCALED_CROP_WIDTH_PX:
-            # Bicubic, not nearest: the decoder samples bar edges, and blocky
-            # pixels give it no transition to sample.
-            upscaled = {
-                factor: cv2.resize(
-                    image, None, fx=factor, fy=factor, interpolation=cv2.INTER_CUBIC
-                )
-                for factor in UPSCALE_FACTORS
-            }
-            attempts.append(DecodeAttempt("upscale2x", upscaled[2]))
+        if len(image.shape) == 3:
+            # A colour image has a greyscale reading worth trying; an image
+            # that is already grey has nothing to convert.
+            attempts.append(DecodeAttempt("gray", factory=gray))
 
-            up2_gray = self._gray(upscaled[2])
+        small = image.shape[1] < MAX_UPSCALED_CROP_WIDTH_PX
+        if small:
+            attempts.append(
+                DecodeAttempt("upscale2x", factory=lambda: self._upscale(image, 2))
+            )
             attempts.append(
                 DecodeAttempt(
-                    "upscale2x_clahe",
-                    cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(up2_gray),
+                    "upscale2x_unsharp", factory=lambda: self._sharp_upscaled(image, 2)
+                )
+            )
+            attempts.append(
+                DecodeAttempt(
+                    "upscale3x_unsharp", factory=lambda: self._sharp_upscaled(image, 3)
                 )
             )
 
-        if gray is not image:
-            attempts.append(DecodeAttempt("gray", gray))
-
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(gray)
-        attempts.append(DecodeAttempt("clahe", clahe))
-
-        _, otsu = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        attempts.append(DecodeAttempt("otsu", otsu))
-
-        if image.shape[1] < MAX_UPSCALED_CROP_WIDTH_PX:
-            up2_gray = self._gray(upscaled[2])
-            _, up2_otsu = cv2.threshold(
-                up2_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        attempts.append(
+            DecodeAttempt(
+                "otsu",
+                factory=lambda: cv2.threshold(
+                    gray(), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+                )[1],
             )
-            attempts.append(DecodeAttempt("upscale2x_otsu", up2_otsu))
-            attempts.append(DecodeAttempt("upscale3x", upscaled[3]))
+        )
+
+        attempts.append(
+            DecodeAttempt(
+                "clahe",
+                factory=lambda: cv2.createCLAHE(
+                    clipLimit=2.0, tileGridSize=(8, 8)
+                ).apply(gray()),
+            )
+        )
+
+        if small:
+            attempts.append(
+                DecodeAttempt(
+                    "upscale4x_unsharp", factory=lambda: self._sharp_upscaled(image, 4)
+                )
+            )
+            attempts.append(
+                DecodeAttempt("upscale3x", factory=lambda: self._upscale(image, 3))
+            )
+            attempts.append(
+                DecodeAttempt(
+                    "upscale2x_otsu",
+                    factory=lambda: cv2.threshold(
+                        self._gray(self._upscale(image, 2)),
+                        0,
+                        255,
+                        cv2.THRESH_BINARY + cv2.THRESH_OTSU,
+                    )[1],
+                )
+            )
             attempts.append(
                 DecodeAttempt(
                     "upscale3x_clahe",
-                    cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)).apply(
-                        self._gray(upscaled[3])
-                    ),
+                    factory=lambda: cv2.createCLAHE(
+                        clipLimit=2.0, tileGridSize=(8, 8)
+                    ).apply(self._gray(self._upscale(image, 3))),
                 )
             )
 
-        adaptive = cv2.adaptiveThreshold(
-            gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 3
+        attempts.append(
+            DecodeAttempt(
+                "adaptive",
+                factory=lambda: cv2.adaptiveThreshold(
+                    gray(), 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 3
+                ),
+            )
         )
-        attempts.append(DecodeAttempt("adaptive", adaptive))
 
         # Light denoise + unsharp mask. This was
         # ``cv2.fastNlMeansDenoising(h=5, template=7, search=21)``, which cost
@@ -383,15 +758,27 @@ class BarcodeDecoderService:
         # no denoise variant decoded these assets even under heavy noise; Otsu
         # is what wins there. The attempt is kept because real sensor noise is
         # not what a synthetic sigma reproduces.
-        denoised = cv2.bilateralFilter(gray, 5, 50, 50)
-        sharpened = cv2.addWeighted(denoised, 1.6, cv2.GaussianBlur(denoised, (0, 0), 2.0), -0.6, 0)
-        attempts.append(DecodeAttempt("denoise_sharpen", sharpened))
+        attempts.append(
+            DecodeAttempt(
+                "denoise_sharpen",
+                factory=lambda: cv2.addWeighted(
+                    cv2.bilateralFilter(gray(), 5, 50, 50),
+                    1.6,
+                    cv2.GaussianBlur(gray(), (0, 0), 2.0),
+                    -0.6,
+                    0,
+                ),
+            )
+        )
 
         if rotations:
             for angle in angles:
-                rotated = rotate_preserve(image, angle)
-                if rotated is not None:
-                    attempts.append(DecodeAttempt(f"rot{angle:+.0f}", rotated))
+                attempts.append(
+                    DecodeAttempt(
+                        f"rot{angle:+.0f}",
+                        factory=lambda a=angle: rotate_preserve(image, a),
+                    )
+                )
 
         return attempts
 
@@ -412,6 +799,11 @@ class BarcodeDecoderService:
         mapped back into the coordinates of ``image``, so a caller that annotates
         or crops using the result is working in the caller's own pixel space even
         when the symbol only became readable after interpolation.
+
+        When every reader has failed, the CODE39 reconstruction gets one turn.
+        It is slower than a reader and, unlike a reader, it has to be *right*,
+        so it only answers when several independent grids agree on the same
+        payload -- see :mod:`services.code39_recovery`.
         """
         attempts = self.build_attempts(image, rotations=rotations, angles=angles)
         if max_attempts is not None:
@@ -426,7 +818,52 @@ class BarcodeDecoderService:
                 for item in found:
                     _annotate_geometry(item, attempt.name, scale)
                 return DecodeResult(found, attempt=attempt.name, attempts_tried=tried)
+
+        recovered = self._recover_code39(image)
+        if recovered:
+            return DecodeResult(
+                recovered, attempt="code39_recovery", attempts_tried=tried
+            )
         return DecodeResult([], attempt=None, attempts_tried=tried)
+
+    @staticmethod
+    def _recover_code39(image: np.ndarray) -> List[DecodedBarcode]:
+        """Reconstruct a CODE39 symbol the readers could not read.
+
+        The reconstruction works on the original pixels: it reads the module
+        grid out of the darkness profile, and an interpolated copy of a symbol
+        that is already too small to resolve its bars carries no extra
+        information to find.
+        """
+        if image is None or image.size == 0:
+            return []
+        if image.shape[1] > MAX_RECOVERY_CROP_WIDTH_PX:
+            return []
+        try:
+            from services.code39_recovery import recover_code39
+        except Exception:  # pragma: no cover - the module is optional
+            logger.warning("CODE39 recovery is unavailable", exc_info=True)
+            return []
+        recovery = recover_code39(image)
+        if recovery is None:
+            return []
+        quality = int(max(0, min(100, (1.0 - recovery.residual) * 100)))
+        return [
+            DecodedBarcode(
+                data=recovery.data,
+                type="CODE39",
+                bbox=BarcodeRect(
+                    recovery.left, recovery.top, recovery.width, recovery.height
+                ),
+                polygon=[
+                    (recovery.left, recovery.top),
+                    (recovery.left + recovery.width, recovery.top),
+                    (recovery.left + recovery.width, recovery.top + recovery.height),
+                    (recovery.left, recovery.top + recovery.height),
+                ],
+                quality=quality,
+            )
+        ]
 
     @staticmethod
     def _attempt_scale(name: str) -> float:

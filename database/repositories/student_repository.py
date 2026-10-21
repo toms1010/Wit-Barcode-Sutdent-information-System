@@ -113,6 +113,30 @@ class StudentRepository:
             cursor.execute(query, params)
             return cursor.fetchone()["count"]
 
+    def count_active_students(self) -> int:
+        """Count students with active enrollment status."""
+        with get_cursor() as cursor:
+            cursor.execute(
+                "SELECT COUNT(*) as count FROM students WHERE enrollment_status = 'active'"
+            )
+            return cursor.fetchone()["count"]
+
+    def count_students_with_barcode(self) -> int:
+        """Count students who have a barcode payload assigned."""
+        with get_cursor() as cursor:
+            cursor.execute(
+                "SELECT COUNT(*) as count FROM students WHERE barcode_payload IS NOT NULL AND barcode_payload != ''"
+            )
+            return cursor.fetchone()["count"]
+
+    def count_students_without_barcode(self) -> int:
+        """Count students who are missing a barcode payload."""
+        with get_cursor() as cursor:
+            cursor.execute(
+                "SELECT COUNT(*) as count FROM students WHERE barcode_payload IS NULL OR barcode_payload = ''"
+            )
+            return cursor.fetchone()["count"]
+
     def update(self, student: Student) -> bool:
         with get_cursor(commit=True) as cursor:
             cursor.execute(

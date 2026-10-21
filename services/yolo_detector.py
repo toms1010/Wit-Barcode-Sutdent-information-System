@@ -26,6 +26,10 @@ class YOLODetectorService:
         self.confidence_threshold = settings.YOLO_CONFIDENCE_THRESHOLD
         self.iou_threshold = settings.YOLO_IOU_THRESHOLD
         self.device = settings.YOLO_DEVICE
+        #: Square size the frame is resized to before inference. See
+        #: ``settings.YOLO_IMGSZ`` -- this is the knob that decides whether a
+        #: small barcode is visible to the model at all.
+        self.imgsz = settings.YOLO_IMGSZ
         self.is_loaded = False
 
     def load_model(self, model_path: Path) -> bool:
@@ -85,6 +89,7 @@ class YOLODetectorService:
             frame,
             conf=self.confidence_threshold,
             iou=self.iou_threshold,
+            imgsz=self.imgsz,
             device=device,
             verbose=False,
         )
@@ -136,6 +141,7 @@ class YOLODetectorService:
             "confidence_threshold": self.confidence_threshold,
             "iou_threshold": self.iou_threshold,
             "device": self.device,
+            "imgsz": self.imgsz,
         }
 
     def set_confidence_threshold(self, threshold: float):

@@ -128,25 +128,30 @@ class TestThirdStudentBarcodeDecoding:
         assert result.data == STEVEN["payload"]
         assert result.type == "CODE39"
 
-    def test_the_id_card_decodes_and_names_the_interpolation_it_needed(self):
-        """The card's symbol is too small for zbar; interpolation is what reads it."""
-        from services.barcode_decoder import BarcodeDecoderService
+    def test_the_id_card_decodes_without_needing_interpolation(self):
+        """Card C's symbol is only 204 px wide -- 1.2 pixels per module.
+
+        That is below what pyzbar can read on its own: the card needs an
+        interpolated copy of itself. zxing-cpp reads it from the *untouched*
+        pixels, so with zxing-cpp installed no interpolation should have been
+        needed. Where zxing-cpp is absent the interpolation is exactly what has
+        to carry the read, and the test says so rather than passing on a stale
+        reason.
+        """
+        from services.barcode_decoder import ZXING_AVAILABLE, BarcodeDecoderService
 
         image = cv2.imread(str(CARD_3))
-        # Guard the premise: if a future zbar reads the card directly this test
-        # should say so rather than quietly keep testing a stale reason.
-        from pyzbar.pyzbar import decode as zbar_decode
-
         result = BarcodeDecoderService().decode_best(image)
 
         assert result.ok
         assert result.data == STEVEN["payload"]
         assert result.type == "CODE39"
         assert result.attempt is not None
-        if not zbar_decode(image):
-            assert result.attempt.startswith("upscale"), (
-                "the card only reads after interpolation, so the winning attempt "
-                f"should be one; it was {result.attempt!r}"
+        if ZXING_AVAILABLE:
+            assert not result.attempt.startswith("upscale"), (
+                "zxing-cpp reads card C from the untouched pixels, so no "
+                "interpolation should have been needed; the winning attempt "
+                f"was {result.attempt!r}"
             )
 
     def test_a_readable_crop_is_still_attempted_exactly_once(self):

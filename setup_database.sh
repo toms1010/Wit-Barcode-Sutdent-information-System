@@ -37,4 +37,4 @@ echo "Next steps:"
 echo "1. cd \"$PROJECT_DIR\""
 echo "2. source venv/bin/activate"
 echo "3. python scripts/initialize_database.py"
-echo "4. python main.py"
+echo "4. python main.py

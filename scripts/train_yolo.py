@@ -200,7 +200,15 @@ def _decoded_values(image) -> List[str]:
 
 
 def evaluate_asset(model, path: Path) -> Dict:
-    """Run the model and the decoder over one image, keeping the stages apart."""
+    """Run the model and the decoder over one image, keeping the stages apart.
+
+    The model is run at ``settings.YOLO_IMGSZ`` -- the size the scanner will
+    actually use. A model's behaviour is a function of the input size as much
+    as of its weights: the 1024-trained candidate was measured detecting every
+    asset at 640 and losing the widest asset entirely at 1024. Scoring a
+    candidate at its training size and a baseline at its own therefore
+    compares two different systems, and the comparison has no meaning.
+    """
     import numpy as np  # noqa: F401  (kept for parity with the pipeline modules)
 
     from services.barcode_decoder import BarcodeDecoderService
@@ -210,7 +218,14 @@ def evaluate_asset(model, path: Path) -> Dict:
         return {"asset": path.name, "readable": False}
 
     readable = bool(_decoded_values(image))
-    result = model(image, conf=0.25, iou=0.45, device=settings.YOLO_DEVICE, verbose=False)[0]
+    result = model(
+        image,
+        conf=0.25,
+        iou=0.45,
+        imgsz=settings.YOLO_IMGSZ,
+        device=settings.YOLO_DEVICE,
+        verbose=False,
+    )[0]
     boxes = []
     if result.boxes is not None and len(result.boxes):
         for b in result.boxes:
@@ -289,6 +304,21 @@ def evaluate(model, label: str) -> Dict:
             results["train_split_context"].append(evaluate_asset(model, path))
 
     def summarise(items: List[Dict]) -> Dict:
+        threshold = settings.YOLO_CONFIDENCE_THRESHOLD
+
+        def actionable(item: Dict) -> List[Dict]:
+            """The boxes the scanner would actually act on.
+
+            The detector service drops anything below
+            ``YOLO_CONFIDENCE_THRESHOLD`` before the pipeline ever sees it, so
+            a weaker box is not a detection: it is a box that never becomes
+            one. It still has to be *visible* in this report, because the
+            threshold is a tunable and a model that only clears the bar at
+            0.25 must not be shipped to be used at 0.25.
+            """
+            return [d for d in item["detections"] if d["conf"] >= threshold]
+
+        best = [max((d["conf"] for d in item["detections"]), default=0.0) for item in items]
         return {
             "count": len(items),
             "detected": sum(1 for i in items if i["detections"]),
@@ -310,6 +340,20 @@ def evaluate(model, label: str) -> Dict:
                 if items
                 else 0.0
             ),
+            # --- what the pipeline acts on -------------------------------
+            "confidence_threshold": threshold,
+            "detected_actionable": sum(1 for i in items if actionable(i)),
+            "false_positives_actionable": sum(
+                1 for i in items if not i["readable"] and actionable(i)
+            ),
+            "max_actionable_on_one_image": max((len(actionable(i)) for i in items), default=0),
+            # The confidence of the *strongest* box on each asset. The
+            # pipeline sorts its candidates by confidence and works on the
+            # best one, so this is the number that predicts what the operator
+            # will see. Averaging over every box instead would punish a model
+            # for emitting one extra weak box and ignore the fact that its
+            # strong boxes are all more confident than the baseline's.
+            "mean_best_conf": round(sum(best) / max(1, len(best)), 3) if items else 0.0,
         }
 
     results["summary"] = {
@@ -377,6 +421,13 @@ def should_promote(active_eval: Optional[Dict], candidate_eval: Dict) -> tuple:
     A candidate must decode the held-out assets at least as well and must not
     introduce false positives on the barcode-free documents.
 
+    Two things are measured *at the confidence the scanner uses*
+    (``YOLO_CONFIDENCE_THRESHOLD``), because that is the behaviour the
+    operator gets: a box the detector service drops is not a detection. The
+    raw, weaker numbers are measured too and compared against the baseline, so
+    that lowering the threshold later cannot turn a shipped model into one
+    that fires on documents -- and so a report reader can see the margin.
+
     A missing active model is *not* permission to promote. "There is nothing to
     compare against" previously returned ``True``, which silently promoted a
     regressed candidate on a machine whose weights had gone missing. Absence of
@@ -386,10 +437,10 @@ def should_promote(active_eval: Optional[Dict], candidate_eval: Dict) -> tuple:
 
     # Applies with or without a baseline: never ship a model that fires on a
     # document with no barcode in it.
-    if cn["false_positives"]:
+    if cn["false_positives_actionable"]:
         return False, (
             f"candidate fires on barcode-free documents "
-            f"({cn['false_positives']} false positives); a baseline comparison "
+            f"({cn['false_positives_actionable']} false positives); a baseline "
             f"cannot excuse that"
         )
 
@@ -414,22 +465,33 @@ def should_promote(active_eval: Optional[Dict], candidate_eval: Dict) -> tuple:
             f"candidate adds false positives on barcode-free documents "
             f"({cn['false_positives']} vs {an['false_positives']})"
         )
-    if c["detected"] < a["detected"]:
+    if c["detected_actionable"] < a["detected_actionable"]:
         return False, (
-            f"candidate detects fewer held-out assets ({c['detected']}) "
-            f"than the active model ({a['detected']})"
+            f"candidate detects fewer held-out assets ({c['detected_actionable']}) "
+            f"than the active model ({a['detected_actionable']})"
         )
-    if c["mean_conf"] < a["mean_conf"]:
+    if c["max_actionable_on_one_image"] > a["max_actionable_on_one_image"]:
         return False, (
-            f"candidate mean confidence is lower on held-out assets "
-            f"({c['mean_conf']} vs {a['mean_conf']})"
+            f"candidate fires more boxes on a single asset "
+            f"({c['max_actionable_on_one_image']} vs "
+            f"{a['max_actionable_on_one_image']})"
+        )
+    # The confidence of the box the pipeline works on: the strongest one on
+    # each asset. Averaging over *every* box instead would punish a model for
+    # emitting one extra weak box and ignore the fact that its strong boxes
+    # are all more confident than the baseline's.
+    if c["mean_best_conf"] < a["mean_best_conf"]:
+        return False, (
+            f"candidate mean best confidence is lower on held-out assets "
+            f"({c['mean_best_conf']} vs {a['mean_best_conf']})"
         )
     return True, (
-        f"held-out detection {c['detected']}/{c['count']} "
-        f"(active {a['detected']}/{a['count']}); "
+        f"held-out detection {c['detected_actionable']}/{c['count']} "
+        f"(active {a['detected_actionable']}/{a['count']}); "
         f"crop decode {c['decoded_from_crop']} (active {a['decoded_from_crop']}); "
-        f"false positives {cn['false_positives']} (active {an['false_positives']}); "
-        f"mean conf {c['mean_conf']} (active {a['mean_conf']})"
+        f"false positives {cn['false_positives_actionable']} "
+        f"(active {an['false_positives_actionable']}); "
+        f"mean best conf {c['mean_best_conf']} (active {a['mean_best_conf']})"
     )
 
 

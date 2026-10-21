@@ -10,7 +10,6 @@ NAV_ITEMS = [
     ("dashboard", "Dashboard", "📊"),
     ("students", "Students", "👥"),
     ("scanner", "Barcode Scanner", "📷"),
-    ("generator", "Barcode Generator", "🏷️"),
     ("enrollment", "Subject Enrollment", "📚"),
     ("courses", "Courses & Subjects", "📖"),
     ("certificate", "Certificate of Matriculation", "📜"),

@@ -14,6 +14,12 @@ ultralytics>=8.2.100
 # Barcode Generation & Decoding
 python-barcode>=0.15.1
 pyzbar>=0.1.9
+# zxing-cpp reads symbols that pyzbar cannot: it holds the floor about a
+# third lower on small, blurred CODE39 symbols, which is what makes a card
+# held at arm's length readable. The application still works without it --
+# the decoder falls back to pyzbar -- but the small-symbol readings are
+# measurably worse without it.
+zxing-cpp>=2.2.0
 
 # Data Visualization
 matplotlib>=3.9.0

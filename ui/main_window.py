@@ -12,7 +12,6 @@ from ui.widgets.sidebar import Sidebar
 from ui.dashboard import DashboardPage
 from ui.students_page import StudentsPage
 from ui.scanner_page import ScannerPage
-from ui.barcode_generator_page import BarcodeGeneratorPage
 from ui.enrollment_page import EnrollmentPage
 from ui.assessment_page import AssessmentPage
 from ui.reports_page import ReportsPage
@@ -35,7 +34,6 @@ PAGE_CLASSES = {
     "dashboard": DashboardPage,
     "students": StudentsPage,
     "scanner": ScannerPage,
-    "generator": BarcodeGeneratorPage,
     "enrollment": EnrollmentPage,
     "assessment": AssessmentPage,
     "reports": ReportsPage,
@@ -49,7 +47,6 @@ PAGE_TITLES = {
     "dashboard": "Dashboard",
     "students": "Students",
     "scanner": "Barcode Scanner",
-    "generator": "Barcode Generator",
     "enrollment": "Subject Enrollment",
     "courses": "Courses & Subjects",
     "certificate": "Certificate of Matriculation",
@@ -347,8 +344,6 @@ class MainWindow(QMainWindow):
                 page = page_class(self.student_service)
             elif page_id == "scanner":
                 page = page_class(self.student_service)
-            elif page_id == "generator":
-                page = page_class(self.student_service, self.barcode_service)
             elif page_id == "enrollment":
                 page = page_class(self.student_service)
             elif page_id == "assessment":

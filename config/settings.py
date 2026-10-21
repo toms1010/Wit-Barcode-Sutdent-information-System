@@ -36,6 +36,29 @@ class Settings:
     YOLO_CONFIDENCE_THRESHOLD = float(os.getenv("YOLO_CONFIDENCE_THRESHOLD", "0.5"))
     YOLO_IOU_THRESHOLD = float(os.getenv("YOLO_IOU_THRESHOLD", "0.45"))
     YOLO_DEVICE = os.getenv("YOLO_DEVICE", "cpu")
+    #: Square size the detector resizes the frame to before inference.
+    #:
+    #: This is a *sampling* setting, and it was measured rather than guessed.
+    #: The detector cannot represent a box wider than 32 cells of the output
+    #: grid (YOLOv8's DFL has ``reg_max=16``), and each cell is 32 input
+    #: pixels, so the widest representable box is 1024 input pixels whatever
+    #: this is set to. At 1280 a symbol filling more than 80% of the frame
+    #: width is therefore *unrepresentable*, and the model was measured
+    #: returning nothing at all on a card held square to the lens.
+    #:
+    #: Within the representable range the picture is not monotonic. Measured on
+    #: the six real assets and on the full distance/angle/position sweep, with
+    #: the 1024-trained candidate:
+    #:
+    #: * 640  -- detection 100% everywhere, mean IoU 0.83-0.94, decode 100%
+    #:   wherever the symbol is physically readable, no false positives;
+    #: * 1024 -- detection 100% but IoU 0.79-0.92, one position lost its
+    #:   detection entirely, the same false positives the raw model emits at
+    #:   low confidence, and the widest asset was not detected at all.
+    #:
+    #: So 640 is the setting, and the model is trained at the same size so
+    #: that the two agree.
+    YOLO_IMGSZ = int(os.getenv("YOLO_IMGSZ", "640"))
     
     DEFAULT_CAMERA_INDEX = int(os.getenv("DEFAULT_CAMERA_INDEX", "0"))
     CAMERA_WIDTH = int(os.getenv("CAMERA_WIDTH", "1280"))

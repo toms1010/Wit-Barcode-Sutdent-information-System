@@ -14,6 +14,17 @@ logger = logging.getLogger(__name__)
 _VIDIOC_QUERYCAP = 0x80685600
 _V4L2_CAP_VIDEO_CAPTURE = 0x00000001
 
+#: The capture format this service asks for.
+#:
+#: The device this project runs on ("ACER HD User Facing", /dev/video0)
+#: publishes exactly two formats at 1280x720: MJPEG and YUYV. Measured on this
+#: machine, MJPEG delivers **13.0 fps** where YUYV delivers **8.7 fps** -- YUYV
+#: is a packed 16-bit-per-pixel stream that the host has to unpack on the CPU,
+#: while MJPEG is decoded by the camera itself. The request is only a request:
+#: a device that does not offer MJPEG is left on whatever it does offer, and
+#: the format actually negotiated is read back and logged.
+PREFERRED_FOURCC = "MJPG"
+
 
 @lru_cache(maxsize=None)
 def _v4l2_capture_capability(index: int) -> Optional[bool]:
@@ -98,6 +109,14 @@ class CameraService:
         self._reported_non_capture_nodes: set[int] = set()
         # Monotonic counter of captured frames; see get_latest_frame_with_id.
         self._frame_id = 0
+        #: Frames actually delivered per second, measured rather than requested.
+        #: The V4L2 backend reports the *requested* frame rate back from
+        #: ``CAP_PROP_FPS`` whether or not the device can honour it, so the
+        #: requested number and the delivered one are two different facts and
+        #: only the second one says how fast the scanner will actually run.
+        self._measured_fps: float = 0.0
+        self._frames_in_window: int = 0
+        self._window_started_at: float = time.monotonic()
 
     def _try_open(self, index: int):
         """Open a device, falling back across backends.
@@ -224,6 +243,36 @@ class CameraService:
         logger.info(f"Available cameras: {self.available_cameras}")
         return self.available_cameras
 
+    @staticmethod
+    def _fourcc_name(cap) -> str:
+        """The pixel format the device actually settled on, as four letters."""
+        try:
+            raw = int(cap.get(cv2.CAP_PROP_FOURCC))
+        except Exception:  # noqa: BLE001 - a backend without the property
+            return ""
+        if raw <= 0:
+            return ""
+        return "".join(chr((raw >> (8 * i)) & 0xFF) for i in range(4)).strip("\x00 ")
+
+    def _negotiate_format(self) -> str:
+        """Ask the device for the preferred format and report what it gave.
+
+        The fourcc has to be set *before* the frame size: the V4L2 backend
+        applies the current pixel format when the size is applied, so setting
+        the size first and the format second leaves the device running the
+        format it opened with.
+        """
+        if self.cap is None:
+            return ""
+        try:
+            self.cap.set(
+                cv2.CAP_PROP_FOURCC,
+                cv2.VideoWriter_fourcc(*PREFERRED_FOURCC),
+            )
+        except Exception as e:  # noqa: BLE001 - a device may refuse the format
+            logger.warning("Camera refused the %s format: %s", PREFERRED_FOURCC, e)
+        return self._fourcc_name(self.cap)
+
     def start(self, camera_index: int = None, frame_callback: Callable[[np.ndarray], None] = None) -> bool:
         if self.is_running:
             self.stop()
@@ -240,6 +289,9 @@ class CameraService:
                 self.is_running = False
                 return False
 
+            # Format first, then size: the V4L2 backend latches the pixel
+            # format when the frame size is applied.
+            negotiated = self._negotiate_format()
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
             self.cap.set(cv2.CAP_PROP_FPS, self.fps)
@@ -248,7 +300,17 @@ class CameraService:
             actual_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             actual_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
             actual_fps = int(self.cap.get(cv2.CAP_PROP_FPS))
-            logger.info(f"Camera started: {actual_width}x{actual_height} @ {actual_fps}fps")
+            settled = self._fourcc_name(self.cap) or negotiated
+            logger.info(
+                f"Camera started: {actual_width}x{actual_height} @ {actual_fps}fps "
+                f"({settled or 'unknown format'})"
+            )
+            if settled and settled.upper() != PREFERRED_FOURCC:
+                logger.info(
+                    "Camera is delivering %s rather than the preferred %s; the "
+                    "delivered frame rate will be lower than it could be.",
+                    settled, PREFERRED_FOURCC,
+                )
 
             # A camera that cannot reach the requested rate is not an error, but
             # it does cap what the pipeline can do. The pipeline throttles to
@@ -258,11 +320,14 @@ class CameraService:
             # against a limit the hardware set.
             if actual_fps and actual_fps < settings.SCAN_TARGET_FPS:
                 logger.warning(
-                    "Camera %d delivers %dfps, below the pipeline target of %dfps; "
+                    "Camera %d requests %dfps, below the pipeline target of %dfps; "
                     "the detection rate will be limited by capture, not by inference.",
                     self.camera_index, actual_fps, settings.SCAN_TARGET_FPS,
                 )
 
+            self._measured_fps = 0.0
+            self._frames_in_window = 0
+            self._window_started_at = time.monotonic()
             self.is_running = True
             self.capture_thread = threading.Thread(target=self._capture_loop, daemon=True)
             self.capture_thread.start()
@@ -285,13 +350,30 @@ class CameraService:
                 self.latest_frame = frame.copy()
                 self._frame_id += 1
 
+            self._record_frame_rate()
+
             if self.frame_callback:
                 try:
                     self.frame_callback(frame)
                 except Exception as e:
                     logger.error(f"Frame callback error: {e}")
 
-            time.sleep(1 / self.fps)
+            # No sleep here, deliberately. ``read()`` already blocks until the
+            # device has a frame, so sleeping after it can only add latency:
+            # at 30 fps it cost a third of the frame rate for nothing. The
+            # pipeline does its own throttling to ``SCAN_TARGET_FPS`` by
+            # skipping frame ids, so the capture thread is free to run as fast
+            # as the hardware allows.
+
+    def _record_frame_rate(self) -> None:
+        """Update the measured capture rate over a one-second window."""
+        self._frames_in_window += 1
+        elapsed = time.monotonic() - self._window_started_at
+        if elapsed < 1.0:
+            return
+        self._measured_fps = self._frames_in_window / elapsed
+        self._frames_in_window = 0
+        self._window_started_at = time.monotonic()
 
     def get_latest_frame(self) -> Optional[np.ndarray]:
         with self.frame_lock:
@@ -320,6 +402,8 @@ class CameraService:
             self.cap.release()
             self.cap = None
         self.latest_frame = None
+        self._measured_fps = 0.0
+        self._frames_in_window = 0
         logger.info("Camera stopped")
 
     def get_camera_info(self) -> dict:
@@ -331,4 +415,8 @@ class CameraService:
             "width": int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
             "height": int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
             "fps": int(self.cap.get(cv2.CAP_PROP_FPS)),
+            # The rate the device was asked for, and the rate it actually
+            # delivers. They are different numbers on this hardware.
+            "format": self._fourcc_name(self.cap),
+            "measured_fps": round(self._measured_fps, 2),
         }

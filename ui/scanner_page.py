@@ -1,9 +1,11 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox,
     QFrame, QGroupBox, QTableWidget, QTableWidgetItem,
-    QHeaderView, QAbstractItemView, QMessageBox, QFileDialog, QApplication
+    QHeaderView, QAbstractItemView, QMessageBox, QFileDialog, QApplication,
+    QStackedWidget
 )
 from pathlib import Path
+from enum import Enum
 
 from PySide6.QtCore import Qt, QTimer, Signal, Slot, QThread
 from PySide6.QtGui import QImage, QPixmap, QFont, QBrush
@@ -26,6 +28,7 @@ from database.connection import DatabaseUnavailableError
 from models.barcode import ScanStatus
 from config.settings import settings
 from ui.widgets.responsive_table import ColumnSpec, configure_table
+from ui.widgets.camera_placeholder import CameraPlaceholder
 import cv2
 import time
 from dataclasses import replace
@@ -40,6 +43,47 @@ PULSE_DURATION_MS = 2200
 #: Preview refresh rate. Deliberately faster than inference so the overlay stays
 #: smooth even while YOLO and the decoder are busy in the worker thread.
 PREVIEW_INTERVAL_MS = 33
+
+
+class ScannerState(str, Enum):
+    """The scanner's lifecycle, and the one thing the whole page reads.
+
+    This is deliberately *not* :class:`~services.scan_pipeline.ScanState`. That
+    enum describes what the pipeline made of a single frame -- searching,
+    decoding, verified, error -- and it keeps moving while the camera is on. This
+    one describes whether the scanner is running at all, and it only changes when
+    the operator or the hardware does.
+
+    Holding both meant the header, the viewport and the footer each read a
+    different thing: the header read a boolean, the viewport read whether a
+    pixmap had been set, and the footer read whatever the last frame said. All
+    three could disagree, and did -- a "Stopped" header sat above a
+    "Searching for barcode..." footer with nothing running to correct it.
+
+    The values are the strings :class:`~ui.widgets.camera_placeholder.STATES`
+    keys on, which is what lets the viewport placeholder be driven straight from
+    this enum instead of through a translation table that could drift.
+    """
+
+    #: Camera closed, no frames, no detection.
+    STOPPED = "stopped"
+    #: Requested, and waiting on the camera and the detection pipeline.
+    STARTING = "starting"
+    #: Camera live, frames being processed, barcode detection running.
+    SCANNING = "scanning"
+    #: Camera or initialisation failed. Nothing is running.
+    ERROR = "error"
+
+    @property
+    def is_running(self) -> bool:
+        """Whether frames are expected to be arriving.
+
+        This is the flag the frame handler gates on, and it is false in
+        :attr:`ERROR` on purpose: an error state means no camera, so a frame that
+        somehow arrives is stale and must not repaint the page.
+        """
+        return self is ScannerState.SCANNING
+
 
 
 def _local_now():
@@ -288,17 +332,32 @@ class ScannerPage(QWidget):
         self._latest_outcome: ScanOutcome = None
         self._pulse_phase = 0.0
 
-        #: Whether the scanner is actually running. The single source of truth
-        #: for the header, the viewport placeholder and the footer, so those
-        #: three cannot describe three different moments. Set in exactly two
-        #: places -- :meth:`_start_scanner` once the worker is up, and
-        #: :meth:`_stop_scanner` as its first statement.
-        self._scanner_running = False
+        #: The scanner's lifecycle, and the single source of truth for the
+        #: header, the viewport stack, the footer and the Start/Stop button.
+        #: Read it rather than testing for a live worker: a worker that is
+        #: stopping is still ``isRunning()`` for a few milliseconds, which is
+        #: long enough to paint a frame and claim the scanner is scanning.
+        self._state = ScannerState.STOPPED
+
+        #: True once the scanner has been stopped and not started again.
+        #:
+        #: A frame that arrives after a stop belongs to a session that is
+        #: over, whether it was queued by the worker or handed over directly.
+        #: Before the first start there is no session to be over, so a frame
+        #: handed over then is current.
+        self._stopped_since_start = False
 
         self.setObjectName("scannerPage")
         self._setup_ui()
         self._load_cameras()
         self._load_yolo_model()
+        # Draw the initial state once the widgets and the camera scan exist.
+        # ``_load_cameras`` may already have moved to ERROR on a machine with no
+        # camera, and either way the header, viewport and footer have to be
+        # brought into agreement by something other than the first click --
+        # otherwise the page opens showing "Waiting for camera..." under a
+        # "Stopped" header with no camera running at all.
+        self._apply_state()
 
         self.preview_timer = QTimer(self)
         self.preview_timer.setInterval(PREVIEW_INTERVAL_MS)
@@ -400,27 +459,42 @@ class ScannerPage(QWidget):
 
         left_layout.addLayout(cam_controls)
 
+        # The viewport is a two-page stack rather than one label that is
+        # sometimes a pixmap and sometimes a sentence.
+        #
+        # As a single QLabel the placeholder text was never cleared by
+        # setPixmap, so the first live frame appeared *beside* "Camera is off",
+        # and nothing tied either to whether the scanner was actually running.
+        # Two pages make "exactly one of them is showing" structural.
+        self.viewport_stack = QStackedWidget()
+        self.viewport_stack.setObjectName("cameraViewportStack")
+        self.viewport_stack.setMinimumSize(640, 400)
+
+        self.camera_placeholder = CameraPlaceholder(
+            action_text="Start Scanner",
+            action=self._toggle_scanner,
+            parent=self,
+        )
+        self.viewport_stack.addWidget(self.camera_placeholder)
+
         self.video_label = QLabel()
         self.video_label.setObjectName("cameraViewport")
         self.video_label.setMinimumSize(640, 400)
-        # The viewport is a light surface until the camera runs: a near-black
-        # rectangle on an otherwise light page read as a broken panel rather than
-        # as an idle camera. The live feed itself still fills this area.
+        # The live surface itself is never given text, so it cannot describe a
+        # state: a QLabel that is only ever a pixmap has nothing to contradict.
         self.video_label.setStyleSheet(f"""
             QLabel#cameraViewport {{
-                background-color: {Colors.SURFACE_MUTED};
+                background-color: {Colors.TEXT_PRIMARY};
                 border: 1px solid {Colors.CARD_BORDER};
                 border-radius: 8px;
-                color: {Colors.MEDIUM_TEXT};
-                font-size: 14px;
             }}
         """)
-        self.video_label.setText(
-            "Camera is off\n\nStart the scanner to see the live feed, or upload a card image."
-        )
-        left_layout.addWidget(self.video_label, 1)
+        self.viewport_stack.addWidget(self.video_label)
+        self.viewport_stack.setCurrentWidget(self.camera_placeholder)
 
-        self.detection_status = QLabel("Waiting for camera...")
+        left_layout.addWidget(self.viewport_stack, 1)
+
+        self.detection_status = QLabel("")
         self.detection_status.setFont(small_label_font(11))
         self.detection_status.setStyleSheet(f"color: {Colors.LIGHT_TEXT};")
         self.detection_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -655,7 +729,138 @@ class ScannerPage(QWidget):
         if not cameras:
             self.camera_combo.addItem("No cameras found", -1)
             self.start_btn.setEnabled(False)
-            self._set_footer("No camera detected on this system", Colors.ERROR_RED)
+            # An absent camera is the ERROR state, not a note in the footer: it
+            # is the one thing on this page that will not fix itself, and leaving
+            # the header reading "Stopped" hid it behind a state that implies
+            # nothing is wrong.
+            self._set_state(
+                ScannerState.ERROR,
+                body=(
+                    "No camera was found on this system. Connect one and choose "
+                    "it in the list, then start the scanner."
+                ),
+            )
+
+    # --------------------------------------------------------------- state --
+
+    @property
+    def scanner_state(self) -> ScannerState:
+        """The scanner's current lifecycle state."""
+        return self._state
+
+    @property
+    def _scanner_running(self) -> bool:
+        """Whether frames are expected to be arriving right now.
+
+        Kept as a read-only view of :attr:`scanner_state` because the frame
+        handler gates on it. Writing to it is deliberately not possible: a
+        second place that could declare the scanner running is the second place
+        that could declare it stopped while it was not.
+        """
+        return self._state.is_running
+
+    def _set_state(
+        self,
+        state: ScannerState,
+        *,
+        footer: str = "",
+        footer_colour: str = Colors.LIGHT_TEXT,
+        body: str = "",
+        title: str = "",
+    ) -> None:
+        """Move to ``state`` and redraw everything that describes it.
+
+        Every transition goes through here. The header indicator, the viewport
+        stack, the footer and the Start/Stop button are four views of one value,
+        and the bug this replaces was four independent writes that could disagree.
+        """
+        self._state = state
+        self._apply_state(footer=footer, footer_colour=footer_colour,
+                          body=body, title=title)
+
+    def _apply_state(
+        self,
+        *,
+        footer: str = "",
+        footer_colour: str = Colors.LIGHT_TEXT,
+        body: str = "",
+        title: str = "",
+    ) -> None:
+        """Draw ``self._state``. Called on every transition and on construction."""
+        state = self._state
+
+        # -- header indicator ------------------------------------------------
+        indicator = {
+            ScannerState.STOPPED: ("● Stopped", "rgba(255,255,255,0.75)"),
+            ScannerState.STARTING: ("● Starting", Colors.SOFT_GOLD),
+            ScannerState.SCANNING: ("● Scanning", "#7BE49B"),
+            ScannerState.ERROR: ("● Error", "#FFB4B4"),
+        }[state]
+        self.status_indicator.setText(indicator[0])
+        self.status_indicator.setStyleSheet(f"color: {indicator[1]};")
+        self.status_indicator.setAccessibleName(f"Scanner status: {indicator[0][2:]}")
+
+        # -- viewport --------------------------------------------------------
+        # The placeholder is shown for every state that has no live feed. While
+        # scanning the feed is on screen, and the placeholder -- with its copy,
+        # its glyph and its button -- is not reachable from the page at all, so
+        # there is nothing left to contradict it.
+        if state is ScannerState.SCANNING:
+            self.viewport_stack.setCurrentWidget(self.video_label)
+        else:
+            self.camera_placeholder.set_state(
+                state.value, title=title, body=body,
+                action_text="Start Scanner", action=self._toggle_scanner,
+            )
+            if state is ScannerState.STOPPED:
+                self.video_label.setPixmap(QPixmap())
+            self.viewport_stack.setCurrentWidget(self.camera_placeholder)
+
+        # -- Start/Stop ------------------------------------------------------
+        running = state.is_running
+        if state is ScannerState.STARTING:
+            # The start has already been pressed, so offering "Start Scanner"
+            # again is a lie, and a toggle that does nothing is worse. This is
+            # the escape hatch out of a start that is taking too long.
+            self.start_btn.setText("Cancel")
+        else:
+            self.start_btn.setText("Stop Scanner" if running else "Start Scanner")
+        self.start_btn.setProperty("danger", "true" if running else "false")
+        self.start_btn.style().unpolish(self.start_btn)
+        self.start_btn.style().polish(self.start_btn)
+        # The camera list is fixed for the life of a run: changing it mid-scan
+        # silently kept streaming from the old device.
+        self.camera_combo.setEnabled(
+            state in (ScannerState.STOPPED, ScannerState.ERROR)
+        )
+
+        # -- footer ----------------------------------------------------------
+        if footer:
+            self._set_footer(footer, footer_colour)
+        elif state is ScannerState.STOPPED:
+            self._set_footer(
+                "Scanner stopped — press Start Scanner to begin",
+                Colors.LIGHT_TEXT,
+            )
+        elif state is ScannerState.STARTING:
+            self._set_footer(
+                "Opening the camera and loading the detection model…",
+                Colors.WARNING_ORANGE,
+            )
+        else:
+            # Scanning: the footer belongs to the last frame, and
+            # _update_status_labels writes it. Clearing it here would flicker the
+            # message away on every transition back to scanning.
+            pass
+
+    def _set_error_state(self, message: str) -> None:
+        """Show ``message`` as the ERROR state, in the header, viewport and footer."""
+        self._set_state(
+            ScannerState.ERROR,
+            footer=message,
+            footer_colour=Colors.ERROR_RED,
+            body=message,
+        )
 
     def _load_yolo_model(self):
         if self.yolo_service.load_active_model():
@@ -673,27 +878,62 @@ class ScannerPage(QWidget):
     # ------------------------------------------------------------- control --
 
     def _toggle_scanner(self):
-        if self.worker and self.worker.isRunning():
+        # STARTING counts as "on" here. It is not yet running, but the start has
+        # been committed to and the button says Cancel, so the toggle has to
+        # honour that; treating it as off would make the button do nothing.
+        if self._state in (ScannerState.STARTING, ScannerState.SCANNING):
             self._stop_scanner()
         else:
             self._start_scanner()
 
     def _start_scanner(self):
+        # Re-entrancy guard. ``_start_scanner`` opens the camera and warms the
+        # detector on the GUI thread, which takes long enough for a second click
+        # -- or a "Scan Next Student" pressed in the gap -- to arrive and open a
+        # *second* camera and a second worker. The state is the guard: STARTING
+        # and SCANNING both refuse a start, and only the first caller gets past.
+        if self._state in (ScannerState.STARTING, ScannerState.SCANNING):
+            logger.debug("Start requested while already %s; ignoring", self._state.value)
+            return
+
         camera_index = self.camera_combo.currentData()
         if camera_index is None or camera_index < 0:
             QMessageBox.warning(self, "No Camera", "Please select a valid camera.")
+            self._set_error_state("No camera is selected, so the scanner cannot start.")
             return
 
         if not self.yolo_service.is_loaded and not self._load_yolo_model():
-            QMessageBox.critical(
-                self, "Model Error",
+            message = (
                 "No YOLO model is loaded, so no barcode can be located.\n"
-                f"Expected: {settings.YOLO_MODEL_PATH}",
+                f"Expected: {settings.YOLO_MODEL_PATH}"
+            )
+            QMessageBox.critical(self, "Model Error", message)
+            self._set_error_state(
+                "No detection model is loaded, so no barcode can be located."
             )
             return
 
+        # From here the scanner is initialising, and the page says so. It used to
+        # sit on "Camera is off" for the whole of the model warm-up -- the
+        # longest single step -- with a Stopped header, which is exactly the
+        # contradiction this state exists to remove.
+        self._set_state(ScannerState.STARTING)
+
+        # Opening the camera and warming the model both block the GUI thread, and
+        # a state that is set but never painted is not a state the operator ever
+        # sees: without this the window sits on the previous state, frozen, for
+        # the whole start and then jumps straight to Scanning.
+        #
+        # Re-entrancy is the price of a nested event loop, and it is already
+        # paid for: the STARTING state is set *before* this call, so a click
+        # delivered inside it reaches the guard at the top of ``_start_scanner``
+        # and is refused rather than opening a second camera.
+        QApplication.processEvents()
+
         if not self.camera_service.start(camera_index):
-            QMessageBox.critical(self, "Camera Error", "Failed to start camera.")
+            message = "The camera could not be opened. Check that it is connected and not in use by another application."
+            QMessageBox.critical(self, "Camera Error", f"Failed to start camera.\n\n{message}")
+            self._set_error_state(message)
             return
 
         self._latest_frame = None
@@ -718,10 +958,12 @@ class ScannerPage(QWidget):
         except Exception as exc:  # noqa: BLE001 - reported to the operator
             logger.warning("Detector warm-up failed: %s", exc)
             self.camera_service.stop()
+            message = f"The detector could not be started, so scanning is not available: {exc}"
             QMessageBox.critical(
                 self, "Model Error",
                 f"The detector could not be started, so scanning is not available:\n\n{exc}",
             )
+            self._set_error_state(message)
             return
 
         self.worker = ScanWorker(
@@ -732,29 +974,21 @@ class ScannerPage(QWidget):
         self.worker.frame_result.connect(self._on_frame_result)
         self.worker.error.connect(self._on_worker_error)
         self.worker.start()
+        self._stopped_since_start = False
 
-        # The single source of truth for "is the scanner up". Read by
-        # ``_on_frame_result`` to drop frames that arrive after a stop, and by
-        # the header/footer to describe the same moment. Setting this in one
-        # place is what stops the header, the viewport and the footer from
-        # describing three different states.
-        self._scanner_running = True
-
+        # Scanning is the only state in which frames are expected, and the frame
+        # handler gates on exactly this. The preview timer starts here rather
+        # than at the top of the method, so the compositor never runs against a
+        # None frame while the model is still loading.
+        self._set_state(ScannerState.SCANNING)
         self.preview_timer.start()
 
-        self.start_btn.setText("Stop Scanner")
-        self.start_btn.setProperty("danger", "true")
-        self.start_btn.style().unpolish(self.start_btn)
-        self.start_btn.style().polish(self.start_btn)
-        self.camera_combo.setEnabled(False)
-        self.status_indicator.setText("● Scanning")
-        self.status_indicator.setStyleSheet("color: #4CAF50;")
+        # "Searching for barcode..." is set here rather than left to the first
+        # frame, because the first frame can be a second away: the scanner is
+        # genuinely scanning in the meantime, and the footer should say so. It is
+        # cleared by every transition out of SCANNING, which is what stops it
+        # outliving the run.
         self._set_footer("Searching for barcode...", Colors.LIGHT_TEXT)
-        # Clear the "Camera is off" placeholder as soon as the camera is live.
-        # It used to survive underneath the first rendered frame, so the viewport
-        # could show a picture and the sentence telling the operator there was
-        # no picture at the same time.
-        self.video_label.setText("")
 
         self._load_history()
 
@@ -898,11 +1132,16 @@ class ScannerPage(QWidget):
         until the camera lets go; stopping the pipeline first means waiting out
         the full timeout and then terminating a thread, which aborts the process.
 
-        The flag is cleared first, before anything else, so a frame already
-        queued on the GUI thread is dropped by :meth:`_on_frame_result` instead
-        of overwriting the state this method is about to establish.
+        The state is moved first, before anything else, so a frame already queued
+        on the GUI thread is dropped by :meth:`_on_frame_result` instead of
+        overwriting the state this method is about to establish. Moving the state
+        *first* is also what redraws the header and the viewport immediately: the
+        teardown below can take the better part of a second, and during it the
+        page used to keep claiming to be scanning.
         """
-        self._scanner_running = False
+        was_running = self._state.is_running
+        self._set_state(ScannerState.STOPPED)
+        self._stopped_since_start = True
         self.preview_timer.stop()
         self.camera_service.stop()
         if self.worker:
@@ -925,17 +1164,8 @@ class ScannerPage(QWidget):
         self._latest_outcome = None
         self.box_smoother.reset()
 
-        self.start_btn.setText("Start Scanner")
-        self.start_btn.setProperty("danger", "false")
-        self.start_btn.style().unpolish(self.start_btn)
-        self.start_btn.style().polish(self.start_btn)
-        self.camera_combo.setEnabled(True)
-        self.status_indicator.setText("● Stopped")
-        self.status_indicator.setStyleSheet("color: white;")
-        self._set_footer("Scanner stopped", Colors.LIGHT_TEXT)
-        self.video_label.setPixmap(QPixmap())
-        self.video_label.setText(
-            "Camera is off\n\nStart the scanner to see the live feed, or upload a card image."
+        self._set_footer(
+            "Scanner stopped — press Start Scanner to begin", Colors.LIGHT_TEXT
         )
         self.student_group.setVisible(False)
         self.decoded_value_label.setText("No barcode detected")
@@ -972,8 +1202,23 @@ class ScannerPage(QWidget):
         "Stopped", the viewport reading "Camera is off", and the footer reading
         "Searching for barcode..." from that last in-flight frame, with nothing
         left running to correct it.
+
+        What makes a frame stale is *which worker sent it* and *whether the
+        scanner is still the session it belongs to* -- not whether the scanner
+        happens to be running at this instant. A frame from a worker that has
+        since been stopped or replaced belongs to a session that is over; a
+        frame handed over directly while the scanner has never run is current
+        by definition and is delivered.
         """
-        if not self._scanner_running:
+        sender = self.sender()
+        if sender is not None and sender is not self.worker:
+            # A frame from a worker that has been stopped or replaced. Its
+            # payload describes a session that no longer exists, and drawing
+            # it would put the page back into a state it has already left.
+            return
+        if self._stopped_since_start:
+            # The scanner was stopped, so this frame describes a session that
+            # is over -- whichever worker handed it over.
             return
 
         self._latest_frame = frame
@@ -1584,8 +1829,17 @@ class ScannerPage(QWidget):
 
     @Slot(str)
     def _on_worker_error(self, error: str):
-        logger.error(f"Scanner worker error: {error}")
-        self._set_footer(f"Error: {error}", Colors.ERROR_RED)
+        """A failure inside the detection loop.
+
+        This used to write the error into the footer and nothing else, so a dead
+        pipeline kept a "Scanning" header and a live-looking viewport over the
+        top of it. The camera and the worker are torn down here instead: a loop
+        that raised is not going to recover on its own, and leaving it "running"
+        is how a page ends up claiming to scan while nothing is being decoded.
+        """
+        logger.error("Scanner worker error: %s", error)
+        self._stop_scanner()
+        self._set_error_state(f"Scanning stopped: {error}")
 
     # ------------------------------------------------------------ cleanup --
 
@@ -1609,6 +1863,13 @@ class ScannerPage(QWidget):
         half-destroyed pipeline.
         """
         self.preview_timer.stop()
+        # The viewport placeholder owns a timer of its own. It stops itself when
+        # hidden, but the page can be torn down while it is still on screen, and
+        # a live timer would then repaint into a deleted label.
+        try:
+            self.camera_placeholder.dispose()
+        except (RuntimeError, AttributeError):
+            pass
         # Only disconnected when it is connected. Calling disconnect() on an
         # already-disconnected signal raises a libpyside RuntimeWarning, which
         # tests and log files then had to be read past on every shutdown.

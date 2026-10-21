@@ -75,6 +75,18 @@ class StudentService:
         """Number of subjects on the catalogue (dashboard tile)."""
         return self.subject_repo.count(active_only=active_only)
 
+    def count_active_students(self) -> int:
+        """Count students with active enrollment status (dashboard tile)."""
+        return self.student_repo.count_active_students()
+
+    def count_students_with_barcode(self) -> int:
+        """Count students who have a barcode payload assigned (dashboard tile)."""
+        return self.student_repo.count_students_with_barcode()
+
+    def count_students_without_barcode(self) -> int:
+        """Count students who are missing a barcode payload (dashboard tile)."""
+        return self.student_repo.count_students_without_barcode()
+
     def count_enrollments(self, status: str = "") -> int:
         """Number of enrollment records, optionally for one status.
 

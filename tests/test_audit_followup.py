@@ -376,7 +376,8 @@ class TestDeviceFallback:
         calls = []
 
         class FlakyModel:
-            def __call__(self, frame, conf=None, iou=None, device=None, verbose=False):
+            def __call__(self, frame, conf=None, iou=None, device=None, verbose=False,
+                         imgsz=None):
                 calls.append(device)
                 if device != "cpu":
                     raise RuntimeError("CUDA driver error")
