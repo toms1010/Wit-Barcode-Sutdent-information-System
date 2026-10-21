@@ -216,16 +216,25 @@ def set_cell(
     *,
     align: Optional[Qt.AlignmentFlag] = None,
     tooltip_from: Optional[str] = None,
+    family: Optional[str] = None,
 ) -> QTableWidgetItem:
     """Write one cell, aligning it and attaching a tooltip when it is long.
 
     ``tooltip_from`` lets a cell show a fuller value than it displays -- a table
     that abbreviates a program name can still offer the complete one on hover.
+
+    ``family`` sets the font family. It is used for the columns whose content
+    is a code -- a barcode number, a student id -- where a fixed-pitch font
+    keeps the characters aligned and makes a mistyped digit obvious.
     """
     value = "" if text is None else str(text)
     item = QTableWidgetItem(value)
     if align is not None:
         item.setTextAlignment(align)
+    if family:
+        font = item.font()
+        font.setFamily(family)
+        item.setFont(font)
     full = tooltip_from if tooltip_from else value
     if len(full) > TOOLTIP_LENGTH:
         item.setToolTip(full)
