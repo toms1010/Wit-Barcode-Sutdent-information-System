@@ -58,57 +58,66 @@ Full details, commands and verification sources:
 - ZBar library (for pyzbar)
 
 #### Ubuntu/Debian
+
 ```bash
 sudo apt-get install mysql-server zbar-tools libzbar0
 ```
 
 #### macOS
+
 ```bash
 brew install mysql zbar
 ```
 
 #### Windows
+
 - Install MySQL from mysql.com
-- Install ZBar from https://sourceforge.net/projects/zbar/
+- Install ZBar from <https://sourceforge.net/projects/zbar/>
 
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 cd "WIT Barcode Student Information System"
 ```
 
-2. Create virtual environment:
+1. Create virtual environment:
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 # venv\Scripts\activate  # Windows
 ```
 
-3. Install dependencies:
+1. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Configure database:
+1. Configure database:
+
 ```bash
 cp .env.example .env
 # Edit .env with your database credentials
 ```
 
-5. Initialize database:
+1. Initialize database:
+
 ```bash
 python scripts/initialize_database.py
 ```
 
-6. Run the application:
+1. Run the application:
+
 ```bash
 python main.py
 ```
 
 ## Project Structure
 
-```
+```text
 wit_barcode_system/
 ├── main.py                 # Entry point
 ├── requirements.txt        # Python dependencies
@@ -169,7 +178,7 @@ BARCODE_OUTPUT_DIR=generated_barcodes
 The system includes 6 data visualization charts generated from real project data:
 
 | Chart | Description | Preview |
-|-------|-------------|---------|
+| ------- | ------------- | --------- |
 | Assessment Breakdown | Tuition, Misc, Lab, CDA fees per student | ![Assessment](documentation/charts/chart1_assessment_breakdown.png) |
 | Payment Schedule | 4 instalments (all overdue) | ![Payments](documentation/charts/chart2_payment_schedule.png) |
 | Detector Performance | GPU vs CPU inference latency & fps | ![Performance](documentation/charts/chart3_detector_performance.png) |
@@ -182,7 +191,7 @@ The system includes 6 data visualization charts generated from real project data
 23 genuine screenshots captured from the live application (1600×950):
 
 | Page | Screenshot |
-|------|-----------|
+| ------ | ----------- |
 | Dashboard | ![Dashboard](documentation/screenshots/01_dashboard.png) |
 | Dashboard (student selected) | ![Dashboard Detail](documentation/screenshots/02_dashboard_student_selected.png) |
 | Students Directory | ![Students](documentation/screenshots/03_students_directory.png) |
@@ -204,14 +213,14 @@ The system includes 6 data visualization charts generated from real project data
 ### Presentation
 
 | File | Description | Download |
-|------|-------------|----------|
+| --- | --- | --- |
 | `WIT_Barcode_Student_Information_System_Technical_Presentation.pptx` | Technical presentation (PowerPoint) | [⬇️ Download PPTX](presentation/WIT_Barcode_Student_Information_System_Technical_Presentation.pptx) |
 | `WIT_Animation_Delivery_Report.md` | Animation delivery report | [⬇️ Download MD](presentation/WIT_Animation_Delivery_Report.md) |
 
 ### Documentation
 
 | File | Description | Download |
-|------|-------------|----------|
+| ------ | ------------- | ---------- |
 | `Project_Documentation.docx` | Full IMRaD documentation (Word) | [⬇️ Download DOCX](documentation/Project_Documentation.docx) |
 | `Project_Documentation.pdf` | Full IMRaD documentation (PDF) | [⬇️ Download PDF](documentation/Project_Documentation.pdf) |
 | `Project_Documentation.md` | Full IMRaD documentation (Markdown) | [⬇️ Download MD](documentation/Project_Documentation.md) |
@@ -220,7 +229,7 @@ The system includes 6 data visualization charts generated from real project data
 ### Diagrams
 
 | File | Description |
-|------|-------------|
+| --- | --- |
 | `documentation/System_Diagrams/` | 8 Mermaid + 8 PNGs + render script |
 | `documentation/screenshots/` | 23 genuine application screenshots + manifest |
 
@@ -237,6 +246,7 @@ The system includes 6 data visualization charts generated from real project data
 ## Fonts
 
 Place font files in:
+
 - `assets/fonts/open-sauce/` - Open Sauce font family
 - `assets/fonts/agrandir/` - Agrandir font family
 
@@ -245,7 +255,8 @@ The application will use system fonts as fallback if custom fonts are not availa
 ## YOLO Dataset
 
 Prepare your dataset in `dataset/`:
-```
+
+```text
 dataset/
 ├── data.yaml
 ├── images/
@@ -259,11 +270,13 @@ dataset/
 ```
 
 Run validation:
+
 ```bash
 python scripts/validate_dataset.py
 ```
 
 Train model:
+
 ```bash
 python scripts/train_yolo.py
 ```
@@ -271,16 +284,19 @@ python scripts/train_yolo.py
 ## Usage
 
 ### Adding Students
+
 1. Navigate to **Students** page
 2. Click **Add Student**
 3. Fill in details and save
 
 ### Generating Barcodes
+
 1. Go to **Barcode Generator**
 2. Select students (or click **Generate All Missing**)
 3. Barcodes are saved to `generated_barcodes/`
 
 ### Scanning Barcodes
+
 1. Go to **Barcode Scanner**
 2. Select camera and click **Start Scanner**
 3. Point barcode at camera
@@ -304,7 +320,7 @@ printed assessment and the installment schedule) are listed in
 ### Students on file
 
 | Barcode payload | Card | Reference | Student | Portrait |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `000065412` | `Id_1.png` / `barcode_2.png` | `65412` | Javy Danielle N. Caporal | `javy_profile.png` |
 | `000065902` | `Id_2.png` / `barcode_1.png` | `65902` | Ronna Mae D. Alemania | `ronna_profile.png` |
 | `000065736` | `Id_3.png` / `barcode_3.png` | `65736` | Steven Anthony M. Oquiana | `Steven_profile.png` |
@@ -327,11 +343,13 @@ so choosing one would be a coin toss between two people. The operator is asked t
 present a single card.
 
 ### Managing Enrollment
+
 1. Go to **Subject Enrollment**
 2. Select a student
 3. Create enrollment and add subjects
 
 ### Assessments & Payments
+
 1. Go to **Assessment & Fees**
 2. Select a student
 3. Create assessment and record payments
@@ -339,11 +357,13 @@ present a single card.
 ## Development
 
 ### Running Tests
+
 ```bash
 pytest tests/
 ```
 
 ### Code Style
+
 - Follow PEP 8
 - Use type hints
 - Document public APIs
