@@ -164,6 +164,76 @@ BARCODE_PREFIX=WIT:STUDENT:
 BARCODE_OUTPUT_DIR=generated_barcodes
 ```
 
+## 📊 Data Visualizations
+
+The system includes 6 data visualization charts generated from real project data:
+
+| Chart | Description | Preview |
+|-------|-------------|---------|
+| Assessment Breakdown | Tuition, Misc, Lab, CDA fees per student | ![Assessment](documentation/charts/chart1_assessment_breakdown.png) |
+| Payment Schedule | 4 instalments (all overdue) | ![Payments](documentation/charts/chart2_payment_schedule.png) |
+| Detector Performance | GPU vs CPU inference latency & fps | ![Performance](documentation/charts/chart3_detector_performance.png) |
+| Scan Success Rate | 49 success / 24 not-found (67.1%) | ![Scans](documentation/charts/chart4_scan_success.png) |
+| Test Results | 24 test modules, 557 tests passed | ![Tests](documentation/charts/chart5_test_results.png) |
+| Subject Credits | 7 subjects, 20 total credits | ![Credits](documentation/charts/chart6_subject_credits.png) |
+
+## 📸 Application Screenshots
+
+23 genuine screenshots captured from the live application (1600×950):
+
+| Page | Screenshot |
+|------|-----------|
+| Dashboard | ![Dashboard](documentation/screenshots/01_dashboard.png) |
+| Dashboard (student selected) | ![Dashboard Detail](documentation/screenshots/02_dashboard_student_selected.png) |
+| Students Directory | ![Students](documentation/screenshots/03_students_directory.png) |
+| Add Student Dialog | ![Add Student](documentation/screenshots/05_student_dialog_add.png) |
+| Enrolment (subjects) | ![Enrolment](documentation/screenshots/08_enrollment_subjects.png) |
+| Certificate of Matriculation | ![Certificate](documentation/screenshots/11_certificate_of_matriculation.png) |
+| Assessment & Fees | ![Assessment](documentation/screenshots/12_assessment_fees.png) |
+| Reports & Analytics | ![Reports](documentation/screenshots/14_reports_analytics.png) |
+| Scanner (verified) | ![Scanner](documentation/screenshots/17_scanner_verified.png) |
+| Scan Result Panel | ![Scan Result](documentation/screenshots/18_scan_result_dialog.png) |
+| Scanner (live camera) | ![Live Camera](documentation/screenshots/19_scanner_camera_running.png) |
+| Training Center (training) | ![Training](documentation/screenshots/21_training_center_training.png) |
+| Settings | ![Settings](documentation/screenshots/23_settings.png) |
+
+> 📁 All 23 screenshots are in `documentation/screenshots/` with a manifest at `screenshot_manifest.txt`
+
+## 📥 Downloadable Deliverables
+
+### Presentation
+
+| File | Description | Download |
+|------|-------------|----------|
+| `WIT_Barcode_Student_Information_System_Technical_Presentation.pptx` | Technical presentation (PowerPoint) | [⬇️ Download PPTX](presentation/WIT_Barcode_Student_Information_System_Technical_Presentation.pptx) |
+| `WIT_Animation_Delivery_Report.md` | Animation delivery report | [⬇️ Download MD](presentation/WIT_Animation_Delivery_Report.md) |
+
+### Documentation
+
+| File | Description | Download |
+|------|-------------|----------|
+| `Project_Documentation.docx` | Full IMRaD documentation (Word) | [⬇️ Download DOCX](documentation/Project_Documentation.docx) |
+| `Project_Documentation.pdf` | Full IMRaD documentation (PDF) | [⬇️ Download PDF](documentation/Project_Documentation.pdf) |
+| `Project_Documentation.md` | Full IMRaD documentation (Markdown) | [⬇️ Download MD](documentation/Project_Documentation.md) |
+| `QUICK_START.md` | Quick reference guide | [⬇️ Download MD](documentation/QUICK_START.md) |
+
+### Diagrams
+
+| File | Description |
+|------|-------------|
+| `documentation/System_Diagrams/` | 8 Mermaid + 8 PNGs + render script |
+| `documentation/screenshots/` | 23 genuine application screenshots + manifest |
+
+### Quick Download Links
+
+[![Download Presentation](https://img.shields.io/badge/Download-Presentation-blue?style=for-the-badge&logo=microsoft-powerpoint)](presentation/WIT_Barcode_Student_Information_System_Technical_Presentation.pptx)
+
+[![Download Documentation DOCX](https://img.shields.io/badge/Download-Documentation_DOCX-blue?style=for-the-badge&logo=microsoft-word)](documentation/Project_Documentation.docx)
+
+[![Download Documentation PDF](https://img.shields.io/badge/Download-Documentation_PDF-red?style=for-the-badge&logo=adobe-acrobat-reader)](documentation/Project_Documentation.pdf)
+
+[![Download Documentation MD](https://img.shields.io/badge/Download-Documentation_MD-gray?style=for-the-badge&logo=markdown)](documentation/Project_Documentation.md)
+
 ## Fonts
 
 Place font files in:
