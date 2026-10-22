@@ -1,0 +1,43 @@
+---
+config:
+  themeVariables:
+    fontSize: 18px
+    fontFamily: 'Georgia, "Times New Roman", serif'
+  flowchart:
+    nodeSpacing: 25
+    rankSpacing: 30
+    padding: 6
+title: YOLO Dataset Build, Training and Promotion Pipeline
+---
+flowchart LR
+    A["assets/images/<br/>Id_1.png, Id_2.png, Id_3.png<br/>assets/images/info/<br/>barcode-free panels"]
+    A --> B["scripts/build_dataset.py<br/>copy bytes, verify digests unchanged"]
+    B --> C["pyzbar / zxing-cpp decode<br/>of every source image"]
+    C --> D{"Does the image decode?"}
+    D -->|"Yes"| E["Derive the bounding box<br/>from the real decode<br/>(never hand-drawn)"]
+    D -->|"No"| F["Negative panel<br/>(must decode nothing)"]
+    E --> G["Assign the split<br/>per physical card"]
+    F --> G
+    G --> H["datasets/barcode_distance/<br/>images/{train,val,test} + labels/*.txt + data.yaml"]
+    H --> I["scripts/train_yolo.py<br/>validate_dataset()"]
+    I --> J{"One class 'barcode'?<br/>labels well formed?"}
+    J -->|"No"| I2["Stop and report"]
+    J -->|"Yes"| K["Ultralytics YOLO('yolov8n.pt').train()<br/>640 px, batch 16, AdamW lr 0.002,<br/>seed 0, tame augmentation,<br/>early stopping patience 30"]
+    K --> L["models_yolo/candidates/<run>/<br/>results.csv + weights/best.pt"]
+    L --> M["evaluate(): score the candidate and<br/>the active model on the same instrument<br/>(held-out cards, negative panels,<br/>decode rates, mean confidence)"]
+    M --> N{"should_promote()"}
+    N -->|"Zero false positives on barcode-free<br/>documents AND at least as many held-out<br/>decodes and detections as the active model"| O["Back up models_yolo/active/best.pt<br/>then copy the candidate into place"]
+    N -->|"Otherwise"| P["Refuse the swap.<br/>The candidate stays inert."]
+    O --> Q["Runtime: only models_yolo/active/best.pt<br/>is loaded by the scanner"]
+    P --> Q
+
+    classDef asset fill:#EAF3FB,stroke:#3E7CB1,stroke-width:1.5px,color:#1E3A52
+    classDef proc fill:#FFE9C7,stroke:#D4761A,stroke-width:1.5px,color:#4A3520
+    classDef gate fill:#FFF0E0,stroke:#D4761A,stroke-width:1.5px,color:#7A4A12
+    classDef ok fill:#E9F7EF,stroke:#2E8B57,stroke-width:1.5px,color:#1D4B32
+    classDef bad fill:#FDEAEA,stroke:#C0392B,stroke-width:1.5px,color:#7B241C
+    class A,B,C,E,F,G,H,I,I2,L,M,N,P asset
+    class D,J,K,O,Q proc
+    class N gate
+    class O ok
+    class I2,P bad

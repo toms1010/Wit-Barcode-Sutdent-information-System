@@ -1,0 +1,74 @@
+{
+  "barcode_detector_strict_20261015_045020": {
+    "epochs_recorded": 20,
+    "first_epoch": 41,
+    "last_epoch": 60,
+    "best_map50": 0.995,
+    "best_map50_95": 0.995,
+    "best_epoch": 52,
+    "final_map50": 0.995,
+    "final_map50_95": 0.995,
+    "final_precision": 0.5983,
+    "final_recall": 1.0
+  },
+  "barcode_detector_v3_20261015_045947": {
+    "epochs_recorded": 60,
+    "first_epoch": 1,
+    "last_epoch": 60,
+    "best_map50": 0.995,
+    "best_map50_95": 0.995,
+    "best_epoch": 52,
+    "final_map50": 0.995,
+    "final_map50_95": 0.995,
+    "final_precision": 0.5983,
+    "final_recall": 1.0
+  },
+  "barcode_detector_v4_tame_20261015_050513": {
+    "epochs_recorded": 30,
+    "first_epoch": 1,
+    "last_epoch": 30,
+    "best_map50": 0.05853,
+    "best_map50_95": 0.01485,
+    "best_epoch": 10,
+    "final_map50": 0.05853,
+    "final_map50_95": 0.00585,
+    "final_precision": 0.01615,
+    "final_recall": 1.0
+  },
+  "barcode_detector_v5_aug_20261015_060903": {
+    "epochs_recorded": 60,
+    "first_epoch": 1,
+    "last_epoch": 60,
+    "best_map50": 0.995,
+    "best_map50_95": 0.87364,
+    "best_epoch": 48,
+    "final_map50": 0.995,
+    "final_map50_95": 0.8539,
+    "final_precision": 0.99715,
+    "final_recall": 1.0
+  },
+  "barcode_detector_v6_full_20261015_090208": {
+    "epochs_recorded": 60,
+    "first_epoch": 1,
+    "last_epoch": 60,
+    "best_map50": 0.90837,
+    "best_map50_95": 0.80208,
+    "best_epoch": 60,
+    "final_map50": 0.90837,
+    "final_map50_95": 0.80208,
+    "final_precision": 0.94998,
+    "final_recall": 0.83787
+  },
+  "barcode_detector_v7_distance_20261015_20261015_221339": {
+    "epochs_recorded": 64,
+    "first_epoch": 1,
+    "last_epoch": 64,
+    "best_map50": 0.995,
+    "best_map50_95": 0.80754,
+    "best_epoch": 34,
+    "final_map50": 0.99465,
+    "final_map50_95": 0.80043,
+    "final_precision": 0.95238,
+    "final_recall": 0.99507
+  }
+}

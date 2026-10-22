@@ -1,0 +1,171 @@
+{
+  "students_by_program": [
+    {
+      "program": "Computer Engineering",
+      "c": 3
+    }
+  ],
+  "students_by_year": [
+    {
+      "year_level": "3rd Year",
+      "c": 3
+    }
+  ],
+  "students_by_status": [
+    {
+      "enrollment_status": "active",
+      "c": 3
+    }
+  ],
+  "scans_by_status": [
+    {
+      "scan_status": "success",
+      "c": 42
+    },
+    {
+      "scan_status": "not_found",
+      "c": 24
+    }
+  ],
+  "scans_by_day": [
+    {
+      "d": "2026-10-15",
+      "c": 18
+    },
+    {
+      "d": "2026-10-17",
+      "c": 9
+    },
+    {
+      "d": "2026-10-18",
+      "c": 6
+    },
+    {
+      "d": "2026-10-19",
+      "c": 33
+    }
+  ],
+  "scans_by_hour": [
+    {
+      "h": 11,
+      "c": 3
+    },
+    {
+      "h": 12,
+      "c": 6
+    },
+    {
+      "h": 13,
+      "c": 28
+    },
+    {
+      "h": 16,
+      "c": 3
+    },
+    {
+      "h": 18,
+      "c": 1
+    },
+    {
+      "h": 19,
+      "c": 1
+    },
+    {
+      "h": 21,
+      "c": 17
+    },
+    {
+      "h": 22,
+      "c": 4
+    },
+    {
+      "h": 23,
+      "c": 3
+    }
+  ],
+  "barcodes": [
+    {
+      "barcode_type": "CODE39",
+      "c": 3
+    }
+  ],
+  "assessments": [
+    {
+      "status": "draft",
+      "c": 3,
+      "a": 82899.93,
+      "p": 0.0,
+      "b": 82899.93
+    }
+  ],
+  "enroll_status": [
+    {
+      "status": "enrolled",
+      "c": 3
+    }
+  ],
+  "enrollment_subjects": [
+    {
+      "c": 21
+    }
+  ],
+  "students_missing_barcode": [
+    {
+      "c": 0
+    }
+  ],
+  "table_rows": [
+    {
+      "t": "students",
+      "c": 3
+    },
+    {
+      "t": "barcodes",
+      "c": 3
+    },
+    {
+      "t": "barcode_scans",
+      "c": 66
+    },
+    {
+      "t": "enrollments",
+      "c": 3
+    },
+    {
+      "t": "enrollment_subjects",
+      "c": 21
+    },
+    {
+      "t": "assessments",
+      "c": 3
+    },
+    {
+      "t": "assessment_items",
+      "c": 33
+    },
+    {
+      "t": "payments",
+      "c": 0
+    },
+    {
+      "t": "payment_schedules",
+      "c": 12
+    },
+    {
+      "t": "id_cards",
+      "c": 0
+    },
+    {
+      "t": "yolo_models",
+      "c": 0
+    },
+    {
+      "t": "dataset_images",
+      "c": 0
+    },
+    {
+      "t": "audit_logs",
+      "c": 3
+    }
+  ]
+}

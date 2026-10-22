@@ -1,0 +1,671 @@
+WIT Barcode Student Information System
+Screenshot capture manifest
+=============================
+Each entry records the file, what it shows, and the text that was on
+screen in the live application when the picture was taken.
+
+01_dashboard.png
+  title:  Dashboard - overview and student directory
+  size:   63 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Student Information and ID Management
+  | 3 students
+  | 👥
+  | 3
+  | Total Students
+  | ✅
+  | 3
+  | Active Students
+  | 🏷️
+  | 3
+  | Registered Student IDs
+  | ⚠️
+  | —
+  | Missing/Unassigned IDs
+  | Search:
+  | Status:
+  | Program:
+  | Year:
+  | Page 1 / 1
+  | 3 students
+  | Loading student details…
+  | Viewing: Dashboard
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Refresh
+  | [button] + Add Student
+  | [button] Export CSV
+  | [button] Previous
+  | [button] Next
+  | [table] ['Student ID', 'Reference No.', 'Name', 'Program', 'Year Level', 'Barcode / ID', 'ID Status', 'Enrollment']
+  | [row] WIT-2024-003 | 65736 | Steven Anthony M. Oquiana | Computer Engineering | 3rd Year | 000065736 | Registered | Active
+  | [row] WIT-2024-002 | 65902 | Ronna Mae D. Alemania | Computer Engineering | 3rd Year | 000065902 | Registered | Active
+  | [row] WIT-2024-001 | 65412 | Javy Danielle N. Caporal | Computer Engineering | 3rd Year | 000065412 | Registered | Active
+
+02_dashboard_student_selected.png
+  title:  Dashboard - student record and ID card panel
+  size:   80 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Student Information and ID Management
+  | 3 students
+  | 👥
+  | 3
+  | Total Students
+  | ✅
+  | 3
+  | Active Students
+  | 🏷️
+  | 3
+  | Registered Student IDs
+  | ⚠️
+  | —
+  | Missing/Unassigned IDs
+  | Search:
+  | Status:
+  | Program:
+  | Year:
+  | Page 1 / 1
+  | 3 students
+  | Steven Anthony M. Oquiana
+  | Student ID: WIT-2024-003  •  Ref: 65736
+  | Computer Engineering  •  3rd Year
+  | Registered
+  | Personal Information
+  | Date of Birth
+  | Not recorded
+  | Gender
+  | Not recorded
+  | Address
+  | Not recorded
+  | Academic Information
+  | Program
+  | Computer Engineering
+  | Year Level
+  | 3rd Year
+  | Section
+  | Not recorded
+  | Enrollment Status
+  | Active
+  | Date Enrolled
+  | Oktubre 17, 2026
+  | Student ID Information
+  | Barcode Payload
+  | 000065736
+  | ID Status
+  | Registered
+  | Viewing: Dashboard
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Refresh
+  | [button] + Add Student
+  | [button] Export CSV
+  | [button] Previous
+  | [button] Next
+  | [button] View Student ID
+  | [button] Print Student ID
+  | [button] Edit Student
+  | [table] ['Student ID', 'Reference No.', 'Name', 'Program', 'Year Level', 'Barcode / ID', 'ID Status', 'Enrollment']
+  | [row] WIT-2024-003 | 65736 | Steven Anthony M. Oquiana | Computer Engineering | 3rd Year | 000065736 | Registered | Active
+  | [row] WIT-2024-002 | 65902 | Ronna Mae D. Alemania | Computer Engineering | 3rd Year | 000065902 | Registered | Active
+  | [row] WIT-2024-001 | 65412 | Javy Danielle N. Caporal | Computer Engineering | 3rd Year | 000065412 | Registered | Active
+
+03_students_directory.png
+  title:  Students - searchable student directory
+  size:   55 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Students
+  | Search:
+  | Status:
+  | Page 1 / 1
+  | 3 students
+  | Viewing: Students
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] + Add Student
+  | [button] Export Report
+  | [button] View Full Profile
+  | [button] Edit
+  | [button] Delete
+  | [button] View Full Profile
+  | [button] Edit
+  | [button] Delete
+  | [button] View Full Profile
+  | [button] Edit
+  | [button] Delete
+  | [button] Previous
+  | [button] Next
+  | [table] ['Student ID', 'Reference No.', 'Name', 'Program', 'Year Level', 'Section', 'Status', 'Actions']
+  | [row] WIT-2024-003 | 65736 | Steven Anthony M. Oquiana | Computer Engineering | 3rd Year | Not recorded | Active | 
+  | [row] WIT-2024-002 | 65902 | Ronna Mae D. Alemania | Computer Engineering | 3rd Year | EP1 | Active | 
+  | [row] WIT-2024-001 | 65412 | Javy Danielle N. Caporal | Computer Engineering | 3rd Year | EP1 | Active | 
+
+04_students_record_selected.png
+  title:  Students - one student selected in the directory
+  size:   55 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Students
+  | Search:
+  | Status:
+  | Page 1 / 1
+  | 3 students
+  | Viewing: Students
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] + Add Student
+  | [button] Export Report
+  | [button] View Full Profile
+  | [button] Edit
+  | [button] Delete
+  | [button] View Full Profile
+  | [button] Edit
+  | [button] Delete
+  | [button] View Full Profile
+  | [button] Edit
+  | [button] Delete
+  | [button] Previous
+  | [button] Next
+  | [table] ['Student ID', 'Reference No.', 'Name', 'Program', 'Year Level', 'Section', 'Status', 'Actions']
+  | [row] WIT-2024-003 | 65736 | Steven Anthony M. Oquiana | Computer Engineering | 3rd Year | Not recorded | Active | 
+  | [row] WIT-2024-002 | 65902 | Ronna Mae D. Alemania | Computer Engineering | 3rd Year | EP1 | Active | 
+  | [row] WIT-2024-001 | 65412 | Javy Danielle N. Caporal | Computer Engineering | 3rd Year | EP1 | Active | 
+
+05_student_dialog_add.png
+  title:  Add Student dialog
+  size:   18 KB
+  | Add New Student
+  | —
+  | Personal Information
+  | Student ID:
+  | Reference Number:*
+  | First Name:*
+  | Middle Name:
+  | Last Name:*
+  | Suffix:
+  | Date of Birth:
+  | Gender:
+  | Program:*
+  | Year Level:*
+  | Section:
+  | Enrollment Status:*
+  | Address
+  | Contact Information
+  | [button] Choose Photo
+  | [button] Remove
+  | [button] Set Primary
+  | [button] ✕
+  | [button] Primary
+  | [button] ✕
+  | [button] + Add Contact
+  | [button] Save Changes
+  | [button] Cancel
+
+06_student_dialog_edit.png
+  title:  Edit Student dialog with a real record loaded
+  size:   30 KB
+  | Edit Student
+  | Personal Information
+  | Student ID:
+  | Reference Number:*
+  | First Name:*
+  | Middle Name:
+  | Last Name:*
+  | Suffix:
+  | Date of Birth:
+  | Gender:
+  | Program:*
+  | Year Level:*
+  | Section:
+  | Enrollment Status:*
+  | Address
+  | Contact Information
+  | [button] Choose Photo
+  | [button] Remove
+  | [button] + Add Contact
+  | [button] Primary
+  | [button] ✕
+  | [button] Set Primary
+  | [button] ✕
+  | [button] Save Changes
+  | [button] Cancel
+
+07_enrollment_select_student.png
+  title:  Subject Enrollment - student list
+  size:   52 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Subject Enrollment
+  | Select Student
+  | 👥
+  | No student selected
+  | Choose a student from the list to see and manage the subjects they are enrolled in.
+  | Viewing: Subject Enrollment
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [table] ['Student ID', 'Reference', 'Name', 'Program']
+  | [row] WIT-2024-003 | 65736 | Steven Anthony M. Oquiana | Computer Engineering
+  | [row] WIT-2024-002 | 65902 | Ronna Mae D. Alemania | Computer Engineering
+  | [row] WIT-2024-001 | 65412 | Javy Danielle N. Caporal | Computer Engineering
+
+08_enrollment_subjects.png
+  title:  Subject Enrollment - enrolled subjects for the selected student
+  size:   62 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Subject Enrollment
+  | Select Student
+  | Steven Anthony M. Oquiana
+  | WIT-2024-003 • 65736 • Computer Engineering • 3rd Year
+  | Status: enrolled • 7 of 7 subject(s) enrolled
+  | Enrolled: Oct 17, 2026
+  | Total Credits: 20
+  | Viewing: Subject Enrollment
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Edit Enrollment
+  | [button] + Add Subject
+  | [button] + New Enrollment
+  | [table] ['Student ID', 'Reference', 'Name', 'Program']
+  | [row] WIT-2024-003 | 65736 | Steven Anthony M. Oquiana | Computer Engineering
+  | [row] WIT-2024-002 | 65902 | Ronna Mae D. Alemania | Computer Engineering
+  | [row] WIT-2024-001 | 65412 | Javy Danielle N. Caporal | Computer Engineering
+  | [table] ['Code / Section', 'Subject', 'Credits', 'Time / Days', 'Room', 'Period', 'Status', 'Fees']
+  | [row] 311EP1 | CPE 311 | 4 | 7-8 PM Saturday | CB 24 | 5 | Enrolled | ₱1,755.81
+  | [row] 312EP1 | CPE 312 | 3 | 1-4 PM Monday | CB 21 | 3 | Enrolled | —
+  | [row] 313EP1 | CPE 313 | 3 | 5-8 PM Friday | CB 24 | 3 | Enrolled | —
+  | [row] 315EP1 | CPE 315 | 1 | 1-4 PM Friday | CB 12 | 2 | Enrolled | ₱2,106.97
+
+09_add_subject_dialog.png
+  title:  Add Subject to Enrollment dialog
+  size:   9 KB
+  | Subject:
+  | Section:
+  | Time:
+  | Days:
+  | Room:
+  | Period:
+  | Lab Fee:
+  | Other Fee:
+  | [button] Save Changes
+  | [button] Cancel
+
+10_courses_subjects.png
+  title:  Courses and Subjects catalogue
+  size:   49 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Courses & Subjects
+  | Course:
+  | 7 subject(s)
+  | Viewing: Courses & Subjects
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Refresh
+  | [table] ['Code', 'Subject', 'Credits', 'Lecture Hrs', 'Lab Hrs', 'Department']
+  | [row] 311EP1 | CPE 311 | 4 | 0 | 0 | 
+  | [row] 312EP1 | CPE 312 | 3 | 0 | 0 | 
+  | [row] 313EP1 | CPE 313 | 3 | 0 | 0 | 
+  | [row] 315EP1 | CPE 315 | 1 | 0 | 0 | 
+
+11_certificate_of_matriculation.png
+  title:  Certificate of Matriculation for a student on file
+  size:   80 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | WESTERN INSTITUTE OF TECHNOLOGY
+  | Student Information & Matriculation System
+  | STUDENT PROFILE
+  | STUDENT PROFILE INFORMATION
+  | Steven Anthony M. Oquiana
+  | ENROLLED
+  | Reference Number
+  | 65736
+  | Student ID
+  | WIT-2024-003
+  | Academic Term
+  | 2024-2025 • 1st Semester
+  | CERTIFICATE OF MATRICULATION
+  | Enrolled courses — 2024-2025 • 1st Semester
+  | FINANCIAL ASSESSMENT
+  | A. ASSESSMENT BREAKDOWN
+  | B. DISCOUNTS & CREDITS
+  | C. PAYMENT SCHEDULE
+  | TOTAL ASSESSMENT
+  | ₱27,633.31
+  | TOTAL DISCOUNTS
+  | ₱0.00
+  | PAYMENTS RECEIVED
+  | ₱0.00
+  | OUTSTANDING BALANCE
+  | ₱27,633.31
+  | Unresolved totals: The installment schedule sums to ₱28,122.82, which differs from the assessed total of ₱27,633.31 by ₱489.51. No payments are recorded, yet the installment schedule (₱28,122.82) does not equal the outstanding balance (₱27,633.31).
+  | Viewing: Certificate of Matriculation
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Save PDF
+  | [button] Print COM
+  | [table] ['Code', 'Course', 'Credits', 'Time / Days', 'Room', 'Periods', 'Lab Fee', 'Other Fee']
+  | [row] 311EP1 | CPE 311 | 4 | 7-8 PM Saturday | CB 24 | 5 | ₱1,755.81 | —
+  | [row] 312EP1 | CPE 312 | 3 | 1-4 PM Monday | CB 21 | 3 | — | —
+  | [row] 313EP1 | CPE 313 | 3 | 5-8 PM Friday | CB 24 | 3 | — | —
+  | [row] 315EP1 | CPE 315 | 1 | 1-4 PM Friday | CB 12 | 2 | ₱2,106.97 | —
+  | [table] ['Item', 'Amount (PHP)']
+  | [row] Tuition Fee | ₱13,340.00
+  | [row] Miscellaneous Fee | ₱8,674.72
+  | [row] Lab Fee | ₱5,618.59
+  | [row] CDA / Diploma / Yearbook | ₱0.00
+  | [table] ['Item', 'Amount (PHP)']
+  | [row] None recorded | —
+  | [table] ['Item', 'Amount (PHP)', 'Status']
+  | [row] Down Payment | ₱2,689.51 | Overdue
+  | [row] Midterm | ₱9,671.66 | Overdue
+  | [row] Prefinal | ₱9,671.66 | Overdue
+  | [row] Final | ₱6,089.99 | Overdue
+
+12_assessment_fees.png
+  title:  Assessment and Fees - charges, schedule and payments
+  size:   67 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Assessment & Fees
+  | Select Student
+  | Steven Anthony M. Oquiana
+  | WIT-2024-003 • 65736 • Computer Engineering • 3rd Year
+  | Status: draft
+  | Dated: Oct 17, 2026
+  | Term: 2024-2025 • 1st Semester
+  | 🗒️
+  | No payments recorded
+  | Nothing has been paid against this assessment yet. Use Record Payment to enter the first one.
+  | 💰
+  | ₱27,633.31
+  | Total Assessed
+  | 🏷️
+  | ₱0.00
+  | Discounts
+  | 💳
+  | ₱0.00
+  | Payments
+  | ⚖️
+  | ₱27,633.31
+  | Outstanding
+  | Viewing: Assessment & Fees
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Edit Assessment
+  | [button] Record Payment
+  | [button] + New Assessment
+  | [table] ['Student ID', 'Reference', 'Name', 'Program']
+  | [row] WIT-2024-003 | 65736 | Steven Anthony M. Oquiana | Computer Engineering
+  | [row] WIT-2024-002 | 65902 | Ronna Mae D. Alemania | Computer Engineering
+  | [row] WIT-2024-001 | 65412 | Javy Danielle N. Caporal | Computer Engineering
+  | [table] ['Category', 'Description', 'Type', 'Verified', 'Amount']
+  | [row] Tuition Fee | Tuition Fee | Fee | Verified | ₱13,340.00
+  | [row] Miscellaneous Fee | Miscellaneous Fee | Fee | Verified | ₱8,674.72
+  | [row] Laboratory Fee | Laboratory Fee | Fee | Verified | ₱5,618.59
+  | [row] CDA Fee | CDA Fee | Fee | Verified | ₱0.00
+  | [table] ['Installment', 'Due Date', 'Amount Due', 'Amount Paid', 'Status']
+  | [row] Down Payment | Oct 17, 2026 | ₱2,689.51 | ₱0.00 | Overdue
+  | [row] Midterm | Oct 17, 2026 | ₱9,671.66 | ₱0.00 | Overdue
+  | [row] Prefinal | Oct 17, 2026 | ₱9,671.66 | ₱0.00 | Overdue
+  | [row] Final | Oct 17, 2026 | ₱6,089.99 | ₱0.00 | Overdue
+
+13_record_payment_dialog.png
+  title:  Record Payment dialog
+  size:   7 KB
+  | Amount:
+  | Date:
+  | Method:
+  | Reference:
+  | Notes:
+  | [button] Record Payment
+  | [button] Cancel
+
+14_reports_analytics.png
+  title:  Reports and Analytics - report catalogue
+  size:   65 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Reports & Analytics
+  | 📜
+  | Certificate of Matriculation
+  | Open the matriculation record and print or export the certificate
+  | 📊
+  | Enrollment Summary
+  | Every student enrolled in a chosen academic year and semester
+  | 🏷️
+  | Student Barcode Report
+  | The student's identity, barcode payload and printed symbol
+  | 💰
+  | Assessment Report
+  | Assessment charges, discounts, schedule and payments for a student
+  | 📋
+  | Barcode Scan Log
+  | The scan history with the resolved student for every scan
+  | Viewing: Reports & Analytics
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Generate
+  | [button] Generate
+  | [button] Generate
+  | [button] Generate
+  | [button] Generate
+
+15_enrollment_summary_dialog.png
+  title:  Enrollment Summary report dialog
+  size:   7 KB
+  | Summarises every student who has at least one subject in 'enrolled' status for the term you choose.
+  | Academic Year:
+  | Semester:
+  | [button] Generate Report
+  | [button] Cancel
+
+16_scanner_idle.png
+  title:  Barcode Scanner - idle state
+  size:   57 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Barcode Scanner
+  | ● Stopped
+  | Camera:
+  | 📷
+  | Camera is off
+  | Start the scanner to see the live feed, or upload a card image.
+  | Scanner stopped — press Start Scanner to begin
+  | Ready
+  | No barcode detected
+  | Decoder: Idle
+  | YOLO: Loaded (barcode)
+  | Confidence: 75%  •  Scan region: 65%
+  | Viewing: Barcode Scanner
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] 🔊 Sound On
+  | [button] Upload Card Image
+  | [button] Start Scanner
+  | [button] Start Scanner
+  | [button] Scan Next Student
+  | [table] ['Time', 'Barcode', 'Student', 'Status']
+
+18_scan_result_dialog.png
+  title:  Scan Result - verified identity, subjects and fees
+  size:   32 KB
+  | Student Verified
+  | Status: Match Found  •  Barcode: 000065412
+  | ✓  VERIFIED
+  | Javy Danielle N. Caporal
+  | Program & Year
+  | Computer Engineering – 3rd Year
+  | Reference Number
+  | 65412
+  | Student ID
+  | WIT-2024-001
+  | Barcode
+  | 000065412
+  | 2024-2025  •  1st Semester
+  | 7 subject(s)   •   20 units   •   laboratory fees ₱5,618.59   (totals computed from the rows above)
+  | [button] Scan Next Student
+  | [button] View Full Profile
+  | [button] Proceed to Assessment
+  | [button] Print COM
+  | [button] Close
+  | [table] ['Code', 'Subject', 'Units', 'Schedule', 'Room', 'Lab Fee']
+  | [row] 311EP1 | CPE 311 | 4 | 7-8 PM Saturday | CB 24 | ₱1,755.81
+  | [row] 312EP1 | CPE 312 | 3 | 1-4 PM Monday | CB 21 | —
+  | [row] 313EP1 | CPE 313 | 3 | 5-8 PM Friday | CB 24 | —
+  | [row] 315EP1 | CPE 315 | 1 | 1-4 PM Friday | CB 12 | ₱2,106.97
+
+17_scanner_verified.png
+  title:  Barcode Scanner - a real card decoded and verified against the records
+  size:   71 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Barcode Scanner
+  | ● Stopped
+  | Camera:
+  | 📷
+  | Camera is off
+  | Start the scanner to see the live feed, or upload a card image.
+  | Id_1.png: verified against the student records
+  | Verifying
+  | 000065412
+  | Decoded: CODE39
+  | Javy Danielle N. Caporal
+  | Student ID: WIT-2024-001  •  Ref: 65412
+  | Computer Engineering  •  3rd Year
+  | Barcode: 000065412
+  | YOLO: Loaded (barcode)
+  | Confidence: 75%  •  Scan region: 65%
+  | Viewing: Barcode Scanner
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] 🔊 Sound On
+  | [button] Upload Card Image
+  | [button] Start Scanner
+  | [button] Start Scanner
+  | [button] Scan Next Student
+  | [button] View Full Profile
+  | [button] View Enrollment
+  | [button] View Assessment
+  | [table] ['Time', 'Barcode', 'Student', 'Status']
+  | [row] 20:06:44 | 000065412 | Javy Danielle N. Caporal | Success
+
+19_scanner_camera_running.png
+  title:  Barcode Scanner - live camera preview with the detector loaded
+  size:   180 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Barcode Scanner
+  | ● Scanning
+  | Camera:
+  | Searching for barcode...
+  | Ready
+  | No barcode detected
+  | Decoder: Idle
+  | YOLO: Loaded (barcode)
+  | Confidence: 75%  •  Scan region: 65%
+  | Viewing: Barcode Scanner
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] 🔊 Sound On
+  | [button] Upload Card Image
+  | [button] Stop Scanner
+  | [button] Scan Next Student
+  | [table] ['Time', 'Barcode', 'Student', 'Status']
+  | [row] 20:06:44 | 000065412 | Javy Danielle N. Caporal | Success
+  | [row] 20:03:56 | 000065412 | Javy Danielle N. Caporal | Success
+  | [row] 20:01:23 | 000065412 | Javy Danielle N. Caporal | Success
+  | [row] 16:36:10 | 000065412 | Javy Danielle N. Caporal | Success
+
+20_training_center_dataset.png
+  title:  Training Center - dataset tab
+  size:   56 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Training Center
+  | 🖼️
+  | 0
+  | Training Images
+  | ✅
+  | 0
+  | Validation Images
+  | 🧪
+  | 0
+  | Test Images
+  | ✓
+  | 0
+  | Validated
+  | Viewing: Training Center
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Import Images
+  | [button] Import Annotations
+  | [button] Validate Dataset
+  | [table] ['File', 'Split', 'Size', 'Annotations', 'Validated', 'Issues', 'Actions']
+
+21_training_center_training.png
+  title:  Training Center - training configuration tab
+  size:   53 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:06 PM
+  | ● Database: Connected
+  | Training Center
+  | Dataset Config:
+  | Epochs:
+  | Image Size:
+  | Batch Size:
+  | Device:
+  | Ready to train
+  | Viewing: Training Center
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Browse
+  | [button] Start Training
+  | [button] Stop Training
+
+22_training_center_models.png
+  title:  Training Center - model registry tab
+  size:   49 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:07 PM
+  | ● Database: Connected
+  | Training Center
+  | No active model
+  | Viewing: Training Center
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Deactivate
+  | [table] ['Name', 'Version', 'Type', 'Status', 'Metrics', 'Created', 'Actions']
+
+23_settings.png
+  title:  Settings - application and environment configuration
+  size:   53 KB
+  | WIT Barcode Student Information System
+  | Oct 22, 2026 • 08:07 PM
+  | ● Database: Connected
+  | Settings
+  | Application Name:
+  | Version:
+  | Default Academic Year:
+  | Default Semester:
+  | Viewing: Settings
+  | WIT Barcode System v1.0.0
+  | [button] Admin ▼
+  | [button] Save Settings

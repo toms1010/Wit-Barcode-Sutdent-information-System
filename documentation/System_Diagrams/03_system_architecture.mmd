@@ -1,0 +1,63 @@
+---
+config:
+  themeVariables:
+    fontSize: 18px
+    fontFamily: 'Georgia, "Times New Roman", serif'
+  flowchart:
+    nodeSpacing: 25
+    rankSpacing: 30
+    padding: 6
+title: System Architecture - Layered View
+---
+flowchart LR
+    subgraph L5["Presentation Layer (ui/)"]
+        direction TB
+        U1["MainWindow<br/>(routing, top bar, status bar)"]
+        U2["10 routed pages:<br/>Dashboard, Students, Scanner,<br/>Enrollment, Courses, Certificate,<br/>Assessment, Reports, Training, Settings"]
+        U3["Dialogs:<br/>Student, Scan Result,<br/>Confirm, Barcode"]
+        U4["Reusable widgets:<br/>Sidebar, StatCard, ProfileCard,<br/>ResponsiveTable, StatusPill,<br/>BarcodeDisplay, EmptyState"]
+    end
+
+    subgraph L4["Service / Business Layer (services/)"]
+        direction TB
+        S1["StudentService<br/>AssessmentService"]
+        S2["ScanPipeline<br/>BarcodeDecoderService<br/>YOLODetectorService<br/>ScanSession"]
+        S3["ReportService<br/>ComPrintService<br/>ComDocument<br/>ComSummary"]
+        S4["BarcodeGeneratorService<br/>IdCardService<br/>CameraService<br/>AudioCue"]
+    end
+
+    subgraph L3["Model Layer (models/)"]
+        direction TB
+        M1["Student, Enrollment,<br/>EnrollmentSubject"]
+        M2["Assessment, AssessmentItem,<br/>AssessmentCategory,<br/>PaymentSchedule, Payment"]
+        M3["Barcode, BarcodeScan,<br/>YOLOModel, DatasetImage,<br/>IdCard"]
+    end
+
+    subgraph L2["Data Access Layer (database/)"]
+        direction TB
+        D1["StudentRepository<br/>CourseRepository<br/>SubjectRepository<br/>EnrollmentRepository"]
+        D2["BarcodeRepository<br/>BarcodeScanRepository<br/>YOLOModelRepository<br/>DatasetImageRepository"]
+        D3["AssessmentCategoryRepository<br/>AssessmentRepository<br/>PaymentRepository<br/>IdCardRepository"]
+        D4["connection.py<br/>connection pool (10)<br/>raw SQL, no ORM"]
+    end
+
+    subgraph L1["Infrastructure / External"]
+        E1[("MySQL 8.4<br/>19 InnoDB tables")]
+        E2["OpenCV + NumPy<br/>Ultralytics / PyTorch (CUDA)<br/>zxing-cpp + pyzbar"]
+        E3["ReportLab (A4 PDF)<br/>matplotlib (charts)"]
+        E4["Filesystem:<br/>assets/, generated_barcodes/,<br/>generated_id_cards/, reports/, models_yolo/"]
+    end
+
+    L5 --> L4
+    L4 --> L3
+    L3 --> L2
+    L2 --> L1
+    L4 -.->|"reads frames"| E2
+    L4 -.->|"writes documents"| E3
+    L4 -.->|"reads and writes files"| E4
+
+    classDef layer1 fill:#EAF3FB,stroke:#3E7CB1,stroke-width:1.5px,color:#1E3A52
+    classDef layer2 fill:#FFF4E5,stroke:#E08A2E,stroke-width:1.5px,color:#4A3520
+    classDef layer3 fill:#F3EAFB,stroke:#7B5EA7,stroke-width:1.5px,color:#3A2A52
+    class U1,U2,U3,U4,S1,S2,S3,S4,M1,M2,M3,D1,D2,D3,D4 layer1
+    class E1,E2,E3,E4 layer2

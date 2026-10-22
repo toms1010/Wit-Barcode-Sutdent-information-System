@@ -1,0 +1,256 @@
+---
+config:
+  themeVariables:
+    fontSize: 22px
+    fontFamily: 'Georgia, "Times New Roman", serif'
+  flowchart:
+    nodeSpacing: 30
+    rankSpacing: 35
+    padding: 8
+title: Entity-Relationship Diagram - wit_barcode_system
+---
+erDiagram
+    USERS ||--o{ STUDENTS : "creates / updates"
+    USERS ||--o{ AUDIT_LOGS : "writes"
+    USERS ||--o{ YOLO_MODELS : "trains / activates"
+
+    STUDENTS ||--o{ STUDENT_CONTACTS : "has"
+    STUDENTS ||--o{ ENROLLMENTS : "holds"
+    STUDENTS ||--o{ BARCODES : "is identified by"
+    STUDENTS ||--o{ BARCODE_SCANS : "scanned as"
+    STUDENTS ||--o{ ASSESSMENTS : "is assessed in"
+    STUDENTS ||--o{ ID_CARDS : "is printed on"
+
+    COURSES ||--o{ SUBJECTS : "offers"
+    SUBJECTS ||--o{ ENROLLMENT_SUBJECTS : "appears in"
+    ENROLLMENTS ||--o{ ENROLLMENT_SUBJECTS : "contains"
+
+    BARCODES ||--o{ BARCODE_SCANS : "is read in"
+
+    ASSESSMENTS ||--o{ ASSESSMENT_ITEMS : "itemised by"
+    ASSESSMENT_CATEGORIES ||--o{ ASSESSMENT_ITEMS : "classifies"
+    ASSESSMENTS ||--o{ PAYMENT_SCHEDULES : "is paid by"
+    ASSESSMENTS ||--o{ PAYMENTS : "receives"
+
+    USERS {
+        int id PK
+        varchar username UK
+        varchar email
+        enum role
+        timestamp created_at
+    }
+
+    STUDENTS {
+        int id PK
+        varchar student_id UK
+        varchar reference_number UK
+        varchar first_name
+        varchar middle_name
+        varchar last_name
+        varchar suffix
+        varchar program
+        enum year_level
+        varchar section
+        date date_of_birth
+        enum gender
+        text address
+        varchar profile_image_path
+        enum enrollment_status
+        date date_enrolled
+        varchar barcode_payload UK
+        int created_by FK
+        int updated_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    STUDENT_CONTACTS {
+        int id PK
+        int student_id FK
+        enum contact_type
+        varchar contact_value
+        tinyint is_primary
+        varchar label
+    }
+
+    COURSES {
+        int id PK
+        varchar course_code UK
+        varchar course_name
+        varchar department
+        int credits
+        tinyint is_active
+    }
+
+    SUBJECTS {
+        int id PK
+        varchar subject_code UK
+        varchar subject_name
+        int course_id FK
+        int credits
+        int lecture_hours
+        int lab_hours
+        tinyint is_active
+    }
+
+    ENROLLMENTS {
+        int id PK
+        int student_id FK
+        varchar academic_year
+        enum semester
+        date enrollment_date
+        enum status
+        int total_credits
+    }
+
+    ENROLLMENT_SUBJECTS {
+        int id PK
+        int enrollment_id FK
+        int subject_id FK
+        varchar section
+        varchar schedule_time
+        varchar schedule_days
+        varchar room
+        int period
+        decimal lab_fee
+        decimal other_fee
+        varchar grade
+        enum status
+    }
+
+    BARCODES {
+        int id PK
+        int student_id FK
+        varchar barcode_value UK
+        enum barcode_type
+        varchar image_path
+        tinyint is_active
+        int regenerated_count
+    }
+
+    BARCODE_SCANS {
+        int id PK
+        int barcode_id FK
+        varchar scanned_value
+        int student_id FK
+        enum scan_status
+        decimal confidence_score
+        json detection_bbox
+        int camera_index
+        int scanned_by FK
+        timestamp scanned_at
+    }
+
+    ASSESSMENT_CATEGORIES {
+        int id PK
+        varchar category_code UK
+        varchar category_name
+        tinyint is_fee
+        tinyint is_discount
+        int display_order
+    }
+
+    ASSESSMENTS {
+        int id PK
+        int student_id FK
+        int enrollment_id FK
+        varchar academic_year
+        enum semester
+        date assessment_date
+        enum status
+        decimal total_assessed
+        decimal total_discounts
+        decimal total_payments
+        decimal outstanding_balance
+        text notes
+    }
+
+    ASSESSMENT_ITEMS {
+        int id PK
+        int assessment_id FK
+        int category_id FK
+        varchar description
+        decimal amount
+        tinyint is_verified
+        int verified_by FK
+    }
+
+    PAYMENTS {
+        int id PK
+        int assessment_id FK
+        date payment_date
+        decimal amount
+        enum payment_method
+        varchar reference_number
+        int received_by FK
+        tinyint is_voided
+        int voided_by FK
+        text void_reason
+    }
+
+    PAYMENT_SCHEDULES {
+        int id PK
+        int assessment_id FK
+        enum schedule_type
+        date due_date
+        decimal amount_due
+        decimal amount_paid
+        enum status
+    }
+
+    AUDIT_LOGS {
+        bigint id PK
+        int user_id FK
+        varchar action
+        varchar table_name
+        int record_id
+        json old_values
+        json new_values
+        varchar ip_address
+        timestamp created_at
+    }
+
+    SYSTEM_SETTINGS {
+        int id PK
+        varchar setting_key UK
+        text setting_value
+        enum setting_type
+        tinyint is_public
+    }
+
+    YOLO_MODELS {
+        int id PK
+        varchar model_name
+        varchar version
+        varchar file_path
+        enum model_type
+        json classes
+        json training_config
+        json metrics
+        enum status
+        int trained_by FK
+        timestamp activated_at
+    }
+
+    ID_CARDS {
+        int id PK
+        int student_id FK
+        varchar template_key
+        varchar front_image_path
+        varchar back_image_path
+        varchar pdf_path
+        enum status
+        varchar last_error
+        int render_count
+    }
+
+    DATASET_IMAGES {
+        int id PK
+        varchar file_path
+        enum split
+        int width
+        int height
+        int annotation_count
+        tinyint is_validated
+        int validated_by FK
+    }

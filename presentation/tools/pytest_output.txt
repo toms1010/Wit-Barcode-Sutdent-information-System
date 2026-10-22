@@ -1,0 +1,950 @@
+........................................................................ [ 13%]
+........................................................................ [ 26%]
+........................................................................ [ 39%]
+........................................................................ [ 52%]
+........................................................................ [ 65%]
+.....F.F..FFFF.FFF.FF..FF...............................F.........FF.... [ 78%]
+..........F...FFFFF..................................................... [ 91%]
+.................................................                        [100%]
+=================================== FAILURES ===================================
+_ TestLookupFailures.test_unknown_barcode_clears_the_verified_student_on_the_page _
+
+self = <tests.test_scan_post_scan_workflow.TestLookupFailures object at 0x76762731fb10>
+qapp = <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_unknown_barcode_clears_the_verified_student_on_the_page(self, qapp, verified_student):
+        page = make_page()
+        page._on_frame_result(
+            np.zeros((720, 1280, 3), dtype=np.uint8),
+            ScanOutcome(
+                state=ScanState.UNKNOWN_BARCODE,
+                message="Unknown barcode - no matching student record.",
+                decoded_value="000000000",
+                decoded_type="CODE39",
+            ),
+        )
+        assert page.current_student is None
+        assert page.student_group.isVisible() is False
+>       statuses = [page.history_table.item(0, 3).text().strip()]
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'text'
+
+tests/test_scan_post_scan_workflow.py:423: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:30 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:30 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:30 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:30 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:30 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:30 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+_____ TestLookupFailures.test_mismatched_id_is_resolved_to_its_own_student _____
+
+self = <tests.test_scan_post_scan_workflow.TestLookupFailures object at 0x767627133950>
+qapp = <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>
+
+    def test_mismatched_id_is_resolved_to_its_own_student(self, qapp):
+        """A payload that maps to another student shows *that* student, not the scanned one."""
+        page = make_page()
+        other = Student(
+            id=2,
+            student_id="WIT-2024-002",
+            reference_number="65902",
+            first_name="Ronna Mae",
+            middle_name="D.",
+            last_name="Alemania",
+            program="Computer Engineering",
+            year_level=YearLevel.THIRD_YEAR,
+        )
+        outcome = ScanOutcome(
+            state=ScanState.VERIFIED,
+            message="Student verified",
+            decoded_value="000065902",
+            student=other,
+            verified_now=True,
+        )
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), outcome)
+    
+>       assert page.scan_repo.created[0].student_id == 2
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: list index out of range
+
+tests/test_scan_post_scan_workflow.py:461: IndexError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:31 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:32 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:32 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:32 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:32 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:32 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+_____ TestSuccessfulScan.test_a_verified_scan_populates_the_student_panel ______
+
+self = <tests.test_scan_post_scan_workflow.TestSuccessfulScan object at 0x7676266e0050>
+page_factory = <function page_factory.<locals>.build at 0x76758e2d3530>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_a_verified_scan_populates_the_student_panel(self, page_factory, verified_student):
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+    
+>       assert page.current_student is verified_student
+E       assert None is Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+E        +  where None = <ui.scanner_page.ScannerPage(0x51493a30, name="scannerPage") at 0x76758ade6900>.current_student
+
+tests/test_scan_post_scan_workflow.py:544: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:33 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:34 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:34 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:34 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:34 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:34 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:34 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestImmediateHistoryInsertion.test_row_is_inserted_at_the_top_without_a_refresh _
+
+self = <tests.test_scan_post_scan_workflow.TestImmediateHistoryInsertion object at 0x7676266e0410>
+page_factory = <function page_factory.<locals>.build at 0x7675d77e5170>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_row_is_inserted_at_the_top_without_a_refresh(self, page_factory, verified_student):
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+    
+>       assert page.history_table.rowCount() == 1
+E       assert 0 == 1
+E        +  where 0 = <built-in method rowCount of PySide6.QtWidgets.QTableWidget object at 0x76758e42be00>()
+E        +    where <built-in method rowCount of PySide6.QtWidgets.QTableWidget object at 0x76758e42be00> = <PySide6.QtWidgets.QTableWidget(0x4a4fb0d0, name="scanHistoryTable") at 0x76758e42be00>.rowCount
+E        +      where <PySide6.QtWidgets.QTableWidget(0x4a4fb0d0, name="scanHistoryTable") at 0x76758e42be00> = <ui.scanner_page.ScannerPage(0x22b1c5c0, name="scannerPage") at 0x76758e42b000>.history_table
+
+tests/test_scan_post_scan_workflow.py:555: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:34 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:35 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:35 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:35 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:35 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:35 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:35 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+___ TestImmediateHistoryInsertion.test_consecutive_scans_stack_newest_first ____
+
+self = <tests.test_scan_post_scan_workflow.TestImmediateHistoryInsertion object at 0x7676266e02d0>
+page_factory = <function page_factory.<locals>.build at 0x7675d77e6090>
+
+    def test_consecutive_scans_stack_newest_first(self, page_factory):
+        page = page_factory()
+        first = verified_outcome()
+        second = verified_outcome("000065902")
+        page.scan_session.start_new_session()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), first)
+        page.scan_session.start_new_session()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), second)
+    
+>       assert page.history_table.rowCount() == 2
+E       assert 0 == 2
+E        +  where 0 = <built-in method rowCount of PySide6.QtWidgets.QTableWidget object at 0x76758e5ae940>()
+E        +    where <built-in method rowCount of PySide6.QtWidgets.QTableWidget object at 0x76758e5ae940> = <PySide6.QtWidgets.QTableWidget(0x4a573b90, name="scanHistoryTable") at 0x76758e5ae940>.rowCount
+E        +      where <PySide6.QtWidgets.QTableWidget(0x4a573b90, name="scanHistoryTable") at 0x76758e5ae940> = <ui.scanner_page.ScannerPage(0x2295a8f0, name="scannerPage") at 0x76758e5bf700>.history_table
+
+tests/test_scan_post_scan_workflow.py:568: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:35 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:36 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:36 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:36 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:36 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:36 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:36 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestImmediateHistoryInsertion.test_the_row_is_persisted_through_the_existing_repository _
+
+self = <tests.test_scan_post_scan_workflow.TestImmediateHistoryInsertion object at 0x7676271336f0>
+page_factory = <function page_factory.<locals>.build at 0x7675d77e6820>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_the_row_is_persisted_through_the_existing_repository(self, page_factory, verified_student):
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+    
+>       assert len(page.scan_repo.created) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <tests.test_scan_post_scan_workflow.FakeScanRepository object at 0x76758ef86ad0>.created
+E        +      where <tests.test_scan_post_scan_workflow.FakeScanRepository object at 0x76758ef86ad0> = <ui.scanner_page.ScannerPage(0x504c6cf0, name="scannerPage") at 0x76758e3cfb00>.scan_repo
+
+tests/test_scan_post_scan_workflow.py:576: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:36 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:36 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:36 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:37 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:37 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:37 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:37 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestImmediateHistoryInsertion.test_history_is_capped_at_the_configured_limit _
+
+self = <tests.test_scan_post_scan_workflow.TestImmediateHistoryInsertion object at 0x76762728deb0>
+page_factory = <function page_factory.<locals>.build at 0x7675d77e5bc0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x76758f0a1350>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_history_is_capped_at_the_configured_limit(self, page_factory, monkeypatch, verified_student):
+        monkeypatch.setattr(settings, "SCAN_HISTORY_DISPLAY_LIMIT", 3)
+        page = page_factory()
+        for index in range(6):
+            page.scan_session.start_new_session()
+            page._on_frame_result(
+                np.zeros((4, 4, 3), dtype=np.uint8),
+                verified_outcome(value=f"00000000{index}", student=verified_student),
+            )
+>       assert page.history_table.rowCount() == 3
+E       assert 0 == 3
+E        +  where 0 = <built-in method rowCount of PySide6.QtWidgets.QTableWidget object at 0x76758e5bd000>()
+E        +    where <built-in method rowCount of PySide6.QtWidgets.QTableWidget object at 0x76758e5bd000> = <PySide6.QtWidgets.QTableWidget(0x227f80d0, name="scanHistoryTable") at 0x76758e5bd000>.rowCount
+E        +      where <PySide6.QtWidgets.QTableWidget(0x227f80d0, name="scanHistoryTable") at 0x76758e5bd000> = <ui.scanner_page.ScannerPage(0x47917e70, name="scannerPage") at 0x7676271b2280>.history_table
+
+tests/test_scan_post_scan_workflow.py:597: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:38 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:39 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:39 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:39 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:39 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:39 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:39 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_____ TestTimestampFormatting.test_displayed_time_is_hours_minutes_seconds _____
+
+self = <tests.test_scan_post_scan_workflow.TestTimestampFormatting object at 0x7676266e07d0>
+page_factory = <function page_factory.<locals>.build at 0x76758e2d3480>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_displayed_time_is_hours_minutes_seconds(self, page_factory, verified_student):
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+    
+>       text = page.history_table.item(0, 0).text()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'text'
+
+tests/test_scan_post_scan_workflow.py:606: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:39 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:40 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:40 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:40 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:40 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:40 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:40 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+___ TestTimestampFormatting.test_the_stored_timestamp_is_used_when_available ___
+
+self = <tests.test_scan_post_scan_workflow.TestTimestampFormatting object at 0x7676266e0690>
+qapp = <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_the_stored_timestamp_is_used_when_available(self, qapp, verified_student):
+        fixed = datetime.now().replace(hour=19, minute=5, second=26, microsecond=0)
+        page = make_page()
+        page.scan_repo = FakeScanRepository(now=lambda: fixed)
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+>       assert page.history_table.item(0, 0).text() == "19:05:26"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'text'
+
+tests/test_scan_post_scan_workflow.py:615: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:40 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:40 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:40 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:41 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:41 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:41 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+____________ TestTimestampFormatting.test_the_time_is_not_hardcoded ____________
+
+self = <tests.test_scan_post_scan_workflow.TestTimestampFormatting object at 0x7676266f4640>
+page_factory = <function page_factory.<locals>.build at 0x76758e2d1170>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_the_time_is_not_hardcoded(self, page_factory, verified_student):
+        page = page_factory()
+        before = datetime.now()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+        after = datetime.now()
+    
+        # The cell holds "%H:%M:%S", i.e. whole seconds, so the window it is
+        # compared against has to be truncated to whole seconds too. Comparing a
+        # second-resolution string against microsecond-resolution datetimes can
+        # never match, whatever the code does.
+        def whole_seconds(moment: datetime) -> time:
+            return moment.replace(microsecond=0).time()
+    
+>       shown = datetime.strptime(page.history_table.item(0, 0).text(), "%H:%M:%S").time()
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'text'
+
+tests/test_scan_post_scan_workflow.py:641: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:41 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:42 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:42 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:42 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:42 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:42 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:42 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+______________ TestStatusBadge.test_success_renders_a_green_badge ______________
+
+self = <tests.test_scan_post_scan_workflow.TestStatusBadge object at 0x7676266e0910>
+page_factory = <function page_factory.<locals>.build at 0x76758e2dfcc0>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_success_renders_a_green_badge(self, page_factory, verified_student):
+        from styles.colors import Colors
+    
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+    
+        badge = page.history_table.item(0, 3)
+>       assert "Success" in badge.text()
+                            ^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'text'
+
+tests/test_scan_post_scan_workflow.py:660: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:42 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:43 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:43 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:43 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:43 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:43 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:43 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+____ TestScanNextStudent.test_clears_transient_state_and_rearms_the_session ____
+
+self = <tests.test_scan_post_scan_workflow.TestScanNextStudent object at 0x7676266e0b90>
+page_factory = <function page_factory.<locals>.build at 0x76758e2dd6f0>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_clears_transient_state_and_rearms_the_session(self, page_factory, verified_student):
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+>       assert page.scan_session.is_latched is True
+E       assert False is True
+E        +  where False = <services.scan_session.ScanSession object at 0x76758e082e70>.is_latched
+E        +    where <services.scan_session.ScanSession object at 0x76758e082e70> = <ui.scanner_page.ScannerPage(0x49c74a50, name="scannerPage") at 0x76758f16b6c0>.scan_session
+
+tests/test_scan_post_scan_workflow.py:690: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:44 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:44 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:44 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:44 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:44 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:44 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:44 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_____ TestScanNextStudent.test_the_same_student_can_then_be_scanned_again ______
+
+self = <tests.test_scan_post_scan_workflow.TestScanNextStudent object at 0x7676266e0cd0>
+page_factory = <function page_factory.<locals>.build at 0x76758e2dc0f0>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_the_same_student_can_then_be_scanned_again(self, page_factory, verified_student):
+        page = page_factory()
+        for _ in range(3):
+            page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+            page._on_scan_next_requested()
+    
+>       assert len(page.scan_repo.created) == 3
+E       assert 2 == 3
+E        +  where 2 = len([BarcodeScan(id=1, barcode_id=None, scanned_value='000065412', student_id=1, scan_status=<ScanStatus.SUCCESS: 'success..._at=datetime.datetime(2026, 10, 19, 23, 57, 45, 778523), student_code=None, student_name=None, student_reference=None)])
+E        +    where [BarcodeScan(id=1, barcode_id=None, scanned_value='000065412', student_id=1, scan_status=<ScanStatus.SUCCESS: 'success..._at=datetime.datetime(2026, 10, 19, 23, 57, 45, 778523), student_code=None, student_name=None, student_reference=None)] = <tests.test_scan_post_scan_workflow.FakeScanRepository object at 0x76758e28ba10>.created
+E        +      where <tests.test_scan_post_scan_workflow.FakeScanRepository object at 0x76758e28ba10> = <ui.scanner_page.ScannerPage(0x49c9e590, name="scannerPage") at 0x76758e2e5440>.scan_repo
+
+tests/test_scan_post_scan_workflow.py:708: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:44 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:45 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:45 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:45 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:45 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:45 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+2026-10-19 23:57:45 - services.camera_service - INFO - Camera started: 1280x720 @ 10fps
+2026-10-19 23:57:45 - services.camera_service - WARNING - Camera 0 delivers 10fps, below the pipeline target of 12fps; the detection rate will be limited by capture, not by inference.
+2026-10-19 23:57:45 - ui.widgets.profile_image - INFO - No profile image recorded for student WIT-2024-001
+2026-10-19 23:57:45 - ui.widgets.profile_image - INFO - No profile image recorded for student WIT-2024-001
+2026-10-19 23:57:45 - ui.widgets.profile_image - INFO - No profile image recorded for student WIT-2024-001
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+INFO     services.camera_service:camera_service.py:251 Camera started: 1280x720 @ 10fps
+WARNING  services.camera_service:camera_service.py:260 Camera 0 delivers 10fps, below the pipeline target of 12fps; the detection rate will be limited by capture, not by inference.
+INFO     ui.widgets.profile_image:profile_image.py:51 No profile image recorded for student WIT-2024-001
+INFO     ui.widgets.profile_image:profile_image.py:51 No profile image recorded for student WIT-2024-001
+INFO     ui.widgets.profile_image:profile_image.py:51 No profile image recorded for student WIT-2024-001
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:46 - database.connection - INFO - Database connection pool created
+2026-10-19 23:57:46 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     database.connection:connection.py:124 Database connection pool created
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestProfileNavigation.test_the_sidebar_student_button_still_opens_the_editor _
+
+self = <tests.test_scan_post_scan_workflow.TestProfileNavigation object at 0x7676266f5810>
+page_factory = <function page_factory.<locals>.build at 0x76758ef605c0>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_the_sidebar_student_button_still_opens_the_editor(self, page_factory, verified_student):
+        """The existing inline action keeps working alongside the new routing."""
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+    
+        opened = {}
+    
+        class _Dialog:
+            def __init__(self, student=None, parent=None):
+                opened["student"] = student
+    
+            def exec(self):
+                return 0
+    
+        import ui.dialogs.student_dialog as student_dialog_module
+    
+        original = student_dialog_module.StudentDialog
+        student_dialog_module.StudentDialog = _Dialog
+        try:
+            page._view_full_profile()
+        finally:
+            student_dialog_module.StudentDialog = original
+    
+>       assert opened["student"] is verified_student
+               ^^^^^^^^^^^^^^^^^
+E       KeyError: 'student'
+
+tests/test_scan_post_scan_workflow.py:1116: KeyError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:53 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:53 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:53 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:54 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:54 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:54 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:54 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+__________ TestAudioCue.test_the_page_beeps_once_for_a_verified_scan ___________
+
+self = <tests.test_scan_post_scan_workflow.TestAudioCue object at 0x7676266e1e50>
+page_factory = <function page_factory.<locals>.build at 0x76758f107e20>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_the_page_beeps_once_for_a_verified_scan(self, page_factory, verified_student):
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+>       assert page.audio_cue.calls == 1
+E       assert 0 == 1
+E        +  where 0 = <tests.test_scan_post_scan_workflow.RecordingAudio object at 0x76758e0c5750>.calls
+E        +    where <tests.test_scan_post_scan_workflow.RecordingAudio object at 0x76758e0c5750> = <ui.scanner_page.ScannerPage(0x51548aa0, name="scannerPage") at 0x76758b933fc0>.audio_cue
+
+tests/test_scan_post_scan_workflow.py:1247: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:54 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:54 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:54 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:54 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:54 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:54 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:54 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+__________ TestAudioCue.test_duplicate_frames_do_not_repeat_the_beep ___________
+
+self = <tests.test_scan_post_scan_workflow.TestAudioCue object at 0x7676266e1d10>
+page_factory = <function page_factory.<locals>.build at 0x76758f1077f0>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_duplicate_frames_do_not_repeat_the_beep(self, page_factory, verified_student):
+        page = page_factory()
+        for _ in range(20):
+            page._on_frame_result(
+                np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student)
+            )
+>       assert page.audio_cue.calls == 1
+E       assert 0 == 1
+E        +  where 0 = <tests.test_scan_post_scan_workflow.RecordingAudio object at 0x76758e1184b0>.calls
+E        +    where <tests.test_scan_post_scan_workflow.RecordingAudio object at 0x76758e1184b0> = <ui.scanner_page.ScannerPage(0x22b319b0, name="scannerPage") at 0x76758e53a840>.audio_cue
+
+tests/test_scan_post_scan_workflow.py:1255: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:54 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:55 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:55 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:55 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:55 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:55 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:55 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+__________ TestAccessibility.test_the_phase_label_tracks_the_session ___________
+
+self = <tests.test_scan_post_scan_workflow.TestAccessibility object at 0x7676272becf0>
+page_factory = <function page_factory.<locals>.build at 0x76758f32dbc0>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_the_phase_label_tracks_the_session(self, page_factory, verified_student):
+        page = page_factory()
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8), verified_outcome(student=verified_student))
+>       assert page._phase_label.text() == "Success"
+E       AssertionError: assert 'Ready' == 'Success'
+E         
+E         - Success
+E         + Ready
+
+tests/test_scan_post_scan_workflow.py:1430: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:57:58 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:57:59 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:57:59 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:57:59 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:57:59 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:57:59 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:57:59 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestAsynchronousRecordLoading.test_the_panel_opens_before_the_records_arrive _
+
+self = <tests.test_scan_post_scan_workflow.TestAsynchronousRecordLoading object at 0x7676266e2490>
+qapp = <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>
+page_factory = <function page_factory.<locals>.build at 0x76758adfc0f0>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_the_panel_opens_before_the_records_arrive(self, qapp, page_factory, verified_student):
+        from PySide6.QtWidgets import QFrame
+    
+        page = page_factory()
+        slow = _SlowService()
+        page.student_service.get_enrollments_by_student = slow.get_enrollments_by_student
+    
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8),
+                              verified_outcome(student=verified_student))
+    
+        dialog = page._active_dialog
+>       assert dialog is not None, "the panel must open straight away"
+E       AssertionError: the panel must open straight away
+E       assert None is not None
+
+tests/test_scan_post_scan_workflow.py:1540: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:58:01 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:58:02 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:58:02 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:58:02 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:58:02 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:58:02 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:58:02 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestAsynchronousRecordLoading.test_records_replace_the_loading_state_when_they_land _
+
+self = <tests.test_scan_post_scan_workflow.TestAsynchronousRecordLoading object at 0x7676266e25d0>
+qapp = <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>
+page_factory = <function page_factory.<locals>.build at 0x76758adfd220>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+brief_com_rows = [ComSubjectRow(code='311EP1', subject='CPE 311', units=4, schedule='7–8 PM SAT', room='CB 24', lab_fee=Decimal('1755.8...3, schedule='6–8 PM TUE', room='CB 24', lab_fee=Decimal('0.00'), section='', period=0, other_fee=Decimal('0.00')), ...]
+
+    def test_records_replace_the_loading_state_when_they_land(
+        self, qapp, page_factory, verified_student, brief_com_rows
+    ):
+        from PySide6.QtWidgets import QFrame, QTabWidget
+    
+        page = page_factory()
+        slow = _SlowService()
+        slow.result = [make_enrollment(brief_com_rows)]
+        page.student_service.get_enrollments_by_student = slow.get_enrollments_by_student
+    
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8),
+                              verified_outcome(student=verified_student))
+        dialog = page._active_dialog
+        slow._release.set()
+    
+>       assert _pump_until(lambda: dialog.loading is False, qapp), "records never arrived"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_scan_post_scan_workflow.py:1563: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_scan_post_scan_workflow.py:1507: in _pump_until
+    if predicate():
+       ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   assert _pump_until(lambda: dialog.loading is False, qapp), "records never arrived"
+                               ^^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'loading'
+
+tests/test_scan_post_scan_workflow.py:1563: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:58:02 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:58:02 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:58:02 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:58:03 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:58:03 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:58:03 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:58:03 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestAsynchronousRecordLoading.test_a_database_failure_shows_an_error_not_empty_data _
+
+self = <tests.test_scan_post_scan_workflow.TestAsynchronousRecordLoading object at 0x7676266f6190>
+qapp = <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>
+page_factory = <function page_factory.<locals>.build at 0x76758f1078a0>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_a_database_failure_shows_an_error_not_empty_data(
+        self, qapp, page_factory, verified_student
+    ):
+        from PySide6.QtWidgets import QFrame, QLabel
+    
+        page = page_factory()
+    
+        def boom(student_id):
+            raise RuntimeError("MySQL server is unreachable")
+    
+        page.student_service.get_enrollments_by_student = boom
+        page.assessment_service.get_latest_assessment = boom
+    
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8),
+                              verified_outcome(student=verified_student))
+        dialog = page._active_dialog
+    
+>       assert _pump_until(lambda: dialog.loading is False, qapp)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_scan_post_scan_workflow.py:1595: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_scan_post_scan_workflow.py:1507: in _pump_until
+    if predicate():
+       ^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   assert _pump_until(lambda: dialog.loading is False, qapp)
+                               ^^^^^^^^^^^^^^
+E   AttributeError: 'NoneType' object has no attribute 'loading'
+
+tests/test_scan_post_scan_workflow.py:1595: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:58:03 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:58:03 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:58:03 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:58:03 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:58:03 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:58:03 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:58:04 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestAsynchronousRecordLoading.test_only_one_lookup_runs_for_a_burst_of_frames _
+
+self = <tests.test_scan_post_scan_workflow.TestAsynchronousRecordLoading object at 0x7676266f62c0>
+qapp = <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>
+page_factory = <function page_factory.<locals>.build at 0x76758f107e20>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_only_one_lookup_runs_for_a_burst_of_frames(
+        self, qapp, page_factory, verified_student
+    ):
+        page = page_factory()
+        slow = _SlowService()
+        page.student_service.get_enrollments_by_student = slow.get_enrollments_by_student
+    
+        for _ in range(20):
+            page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8),
+                                  verified_outcome(student=verified_student))
+        slow._release.set()
+    
+        # The worker runs on its own thread, so give it a moment to be counted
+        # before asserting that exactly one lookup happened.
+>       assert _pump_until(lambda: slow.calls >= 1, qapp), "no lookup ran at all"
+E       AssertionError: no lookup ran at all
+E       assert False
+E        +  where False = _pump_until(<function TestAsynchronousRecordLoading.test_only_one_lookup_runs_for_a_burst_of_frames.<locals>.<lambda> at 0x76758f104b40>, <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>)
+
+tests/test_scan_post_scan_workflow.py:1619: AssertionError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:58:04 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:58:04 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:58:04 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:58:04 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:58:04 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:58:04 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:58:09 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+_ TestAsynchronousRecordLoading.test_records_arriving_after_the_panel_closed_are_dropped _
+
+self = <tests.test_scan_post_scan_workflow.TestAsynchronousRecordLoading object at 0x76762728fd10>
+qapp = <PySide6.QtWidgets.QApplication(0x22d4bab0) at 0x7676267f8b80>
+page_factory = <function page_factory.<locals>.build at 0x76758ef60670>
+verified_student = Student(id=1, student_id='WIT-2024-001', reference_number='65412', first_name='Javy Danielle', middle_name='N.', last_... 10, 19), barcode_payload='000065412', created_by=None, updated_by=None, created_at=None, updated_at=None, contacts=[])
+
+    def test_records_arriving_after_the_panel_closed_are_dropped(
+        self, qapp, page_factory, verified_student
+    ):
+        page = page_factory()
+        slow = _SlowService()
+        page.student_service.get_enrollments_by_student = slow.get_enrollments_by_student
+    
+        page._on_frame_result(np.zeros((4, 4, 3), dtype=np.uint8),
+                              verified_outcome(student=verified_student))
+        dialog = page._active_dialog
+    
+>       page._on_dialog_finished(dialog)          # operator closes it
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_scan_post_scan_workflow.py:1636: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <ui.scanner_page.ScannerPage(0x48349810, name="scannerPage") at 0x767774761240>
+dialog = None
+
+    def _on_dialog_finished(self, dialog) -> None:
+        """Release the presentation guard once the dialog is gone.
+    
+        Clearing only *this* dialog's guard keeps a newer modal (if one was
+        opened after this one closed) from being cancelled by a late signal.
+        """
+        if self._active_dialog is dialog:
+            self._active_dialog = None
+>       dialog.deleteLater()
+        ^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'deleteLater'
+
+ui/scanner_page.py:1611: AttributeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-19 23:58:09 - services.audio_cue - INFO - Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+2026-10-19 23:58:10 - services.camera_service - INFO - /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+2026-10-19 23:58:10 - services.camera_service - INFO - Available cameras: [0]
+2026-10-19 23:58:10 - services.yolo_detector - INFO - Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+2026-10-19 23:58:10 - services.yolo_detector - INFO - Model classes: ['barcode']
+2026-10-19 23:58:10 - ui.scanner_page - INFO - Model detects barcodes directly; ROI gating applies.
+------------------------------ Captured log call -------------------------------
+INFO     services.audio_cue:audio_cue.py:90 Success beep asset not found at /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/assets/audio/success_beep.mp3; using the platform beep instead.
+INFO     services.camera_service:camera_service.py:126 /dev/video1 is a node of an existing camera but reports no video capture capability (metadata/control), so it is not offered as a camera.
+INFO     services.camera_service:camera_service.py:224 Available cameras: [0]
+INFO     services.yolo_detector:yolo_detector.py:43 Loaded YOLO model from /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/models_yolo/active/best.pt
+INFO     services.yolo_detector:yolo_detector.py:44 Model classes: ['barcode']
+INFO     ui.scanner_page:scanner_page.py:865 Model detects barcodes directly; ROI gating applies.
+--------------------------- Captured stderr teardown ---------------------------
+2026-10-19 23:58:11 - services.camera_service - INFO - Camera stopped
+---------------------------- Captured log teardown -----------------------------
+INFO     services.camera_service:camera_service.py:323 Camera stopped
+=============================== warnings summary ===============================
+tests/test_detection_and_tracking.py::TestDetectionLocatesTheBarcodeOnAllFour::test_detected_and_box_lands_on_the_symbol[Id_1.png]
+  /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/venv/lib/python3.14/site-packages/_pytest/fixtures.py:1313: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+  Instance attributes set in this fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use @classmethod decorator and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/test_scan_post_scan_workflow.py::TestCleanup::test_shutdown_is_safe_to_call_twice
+  /home/tommyp/Desktop/Desktop-app/WIT Barcode Student Information System/ui/widgets/camera_placeholder.py:455: RuntimeWarning: libpyside: Failed to disconnect (<bound method CameraPlaceholder._tick of <ui.widgets.camera_placeholder.CameraPlaceholder(0x50495460, name="cameraPlaceholder") at 0x767626811ac0>>) from signal "timeout()".
+    self._timer.timeout.disconnect(self._tick)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_scan_post_scan_workflow.py::TestLookupFailures::test_unknown_barcode_clears_the_verified_student_on_the_page
+FAILED tests/test_scan_post_scan_workflow.py::TestLookupFailures::test_mismatched_id_is_resolved_to_its_own_student
+FAILED tests/test_scan_post_scan_workflow.py::TestSuccessfulScan::test_a_verified_scan_populates_the_student_panel
+FAILED tests/test_scan_post_scan_workflow.py::TestImmediateHistoryInsertion::test_row_is_inserted_at_the_top_without_a_refresh
+FAILED tests/test_scan_post_scan_workflow.py::TestImmediateHistoryInsertion::test_consecutive_scans_stack_newest_first
+FAILED tests/test_scan_post_scan_workflow.py::TestImmediateHistoryInsertion::test_the_row_is_persisted_through_the_existing_repository
+FAILED tests/test_scan_post_scan_workflow.py::TestImmediateHistoryInsertion::test_history_is_capped_at_the_configured_limit
+FAILED tests/test_scan_post_scan_workflow.py::TestTimestampFormatting::test_displayed_time_is_hours_minutes_seconds
+FAILED tests/test_scan_post_scan_workflow.py::TestTimestampFormatting::test_the_stored_timestamp_is_used_when_available
+FAILED tests/test_scan_post_scan_workflow.py::TestTimestampFormatting::test_the_time_is_not_hardcoded
+FAILED tests/test_scan_post_scan_workflow.py::TestStatusBadge::test_success_renders_a_green_badge
+FAILED tests/test_scan_post_scan_workflow.py::TestScanNextStudent::test_clears_transient_state_and_rearms_the_session
+FAILED tests/test_scan_post_scan_workflow.py::TestScanNextStudent::test_the_same_student_can_then_be_scanned_again
+FAILED tests/test_scan_post_scan_workflow.py::TestProfileNavigation::test_the_sidebar_student_button_still_opens_the_editor
+FAILED tests/test_scan_post_scan_workflow.py::TestAudioCue::test_the_page_beeps_once_for_a_verified_scan
+FAILED tests/test_scan_post_scan_workflow.py::TestAudioCue::test_duplicate_frames_do_not_repeat_the_beep
+FAILED tests/test_scan_post_scan_workflow.py::TestAccessibility::test_the_phase_label_tracks_the_session
+FAILED tests/test_scan_post_scan_workflow.py::TestAsynchronousRecordLoading::test_the_panel_opens_before_the_records_arrive
+FAILED tests/test_scan_post_scan_workflow.py::TestAsynchronousRecordLoading::test_records_replace_the_loading_state_when_they_land
+FAILED tests/test_scan_post_scan_workflow.py::TestAsynchronousRecordLoading::test_a_database_failure_shows_an_error_not_empty_data
+FAILED tests/test_scan_post_scan_workflow.py::TestAsynchronousRecordLoading::test_only_one_lookup_runs_for_a_burst_of_frames
+FAILED tests/test_scan_post_scan_workflow.py::TestAsynchronousRecordLoading::test_records_arriving_after_the_panel_closed_are_dropped
+22 failed, 531 passed, 2 warnings in 183.66s (0:03:03)
+EXIT:1

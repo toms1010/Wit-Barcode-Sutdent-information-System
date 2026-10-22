@@ -1,0 +1,177 @@
+{
+  "scans_by_status": [
+    {
+      "k": "success",
+      "v": 41
+    },
+    {
+      "k": "not_found",
+      "v": 24
+    }
+  ],
+  "scans_by_day": [
+    {
+      "k": "2026-10-15",
+      "v": 18
+    },
+    {
+      "k": "2026-10-17",
+      "v": 9
+    },
+    {
+      "k": "2026-10-18",
+      "v": 6
+    },
+    {
+      "k": "2026-10-19",
+      "v": 32
+    }
+  ],
+  "scans_by_day_status": [
+    {
+      "k": "2026-10-15",
+      "s": "success",
+      "v": 17
+    },
+    {
+      "k": "2026-10-15",
+      "s": "not_found",
+      "v": 1
+    },
+    {
+      "k": "2026-10-17",
+      "s": "success",
+      "v": 9
+    },
+    {
+      "k": "2026-10-18",
+      "s": "success",
+      "v": 6
+    },
+    {
+      "k": "2026-10-19",
+      "s": "success",
+      "v": 9
+    },
+    {
+      "k": "2026-10-19",
+      "s": "not_found",
+      "v": 23
+    }
+  ],
+  "students_by_program": [
+    {
+      "k": "Computer Engineering",
+      "v": 3
+    }
+  ],
+  "students_by_year": [
+    {
+      "k": "3rd Year",
+      "v": 3
+    }
+  ],
+  "students_by_status": [
+    {
+      "k": "active",
+      "v": 3
+    }
+  ],
+  "table_rows": [
+    {
+      "t": "students",
+      "c": 3
+    },
+    {
+      "t": "barcodes",
+      "c": 3
+    },
+    {
+      "t": "barcode_scans",
+      "c": 65
+    },
+    {
+      "t": "enrollments",
+      "c": 3
+    },
+    {
+      "t": "enrollment_subjects",
+      "c": 21
+    },
+    {
+      "t": "assessments",
+      "c": 3
+    },
+    {
+      "t": "assessment_items",
+      "c": 33
+    },
+    {
+      "t": "payments",
+      "c": 0
+    },
+    {
+      "t": "payment_schedules",
+      "c": 12
+    },
+    {
+      "t": "id_cards",
+      "c": 0
+    },
+    {
+      "t": "yolo_models",
+      "c": 0
+    },
+    {
+      "t": "dataset_images",
+      "c": 0
+    },
+    {
+      "t": "audit_logs",
+      "c": 3
+    },
+    {
+      "t": "assessment_categories",
+      "c": 20
+    },
+    {
+      "t": "courses",
+      "c": 1
+    },
+    {
+      "t": "subjects",
+      "c": 7
+    },
+    {
+      "t": "student_contacts",
+      "c": 3
+    },
+    {
+      "t": "system_settings",
+      "c": 11
+    },
+    {
+      "t": "users",
+      "c": 0
+    }
+  ],
+  "assessment_totals": [
+    {
+      "n": 3,
+      "assessed": 82899.93,
+      "paid": 0.0,
+      "balance": 82899.93
+    }
+  ],
+  "barcode_types": [
+    {
+      "k": "CODE39",
+      "v": 3
+    }
+  ],
+  "missing_barcodes": [
+    {
+      "c": 0
+    }
+  ]
+}

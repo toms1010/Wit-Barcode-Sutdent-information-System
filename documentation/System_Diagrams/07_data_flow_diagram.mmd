@@ -1,0 +1,56 @@
+---
+config:
+  themeVariables:
+    fontSize: 22px
+    fontFamily: 'Georgia, "Times New Roman", serif'
+  flowchart:
+    nodeSpacing: 30
+    rankSpacing: 35
+    padding: 8
+title: Level-1 Data Flow Diagram
+---
+flowchart LR
+    REG(("Registrar"))
+    CASH(("Cashier"))
+    ADM(("Administrator"))
+
+    P1["Process 1.0<br/>Maintain Student Records"]
+    P2["Process 2.0<br/>Capture and Decode Barcode"]
+    P3["Process 3.0<br/>Manage Enrolment"]
+    P4["Process 4.0<br/>Compute Assessment and Fees"]
+    P5["Process 5.0<br/>Produce Documents and Reports"]
+    P6["Process 6.0<br/>Train and Promote the Detector"]
+
+    D1[("D1 Student Master")]
+    D2[("D2 Enrolment Data")]
+    D3[("D3 Assessment and Payments")]
+    D4[("D4 Barcode and Scan Log")]
+    D5[("D5 Model Registry and Dataset")]
+    D6[("D6 Generated Files<br/>(barcodes, ID cards, PDFs)")]
+
+    REG -->|"student details,<br/>photo, contacts"| P1
+    P1 -->|"student record"| D1
+    D1 -->|"validated record"| P3
+    D1 -->|"assessment basis"| P4
+
+    CASH -->|"card presented to<br/>the webcam"| P2
+    P2 -->|"detected and decoded<br/>payload"| D4
+    D4 -->|"resolved student"| P2
+    P2 -->|"verified identity"| D4
+
+    REG -->|"term, subjects,<br/>schedule, room"| P3
+    P3 -->|"enrolment record"| D2
+    D2 -->|"enrolled subjects<br/>and fees"| P4
+
+    CASH -->|"payment details"| P4
+    P4 -->|"charges, discounts,<br/>instalments, payments"| D3
+    D3 -->|"balances and<br/>payment status"| P5
+
+    REG -->|"COM request,<br/>report request"| P5
+    P5 -->|"PDF / CSV / print job"| D6
+    P5 -->|"document contents"| D3
+    D5 -->|"active weights"| P2
+
+    ADM -->|"dataset images,<br/>training parameters"| P6
+    P6 -->|"candidate model,<br/>validation metrics"| D5
+    ADM -->|"promotion decision"| P6

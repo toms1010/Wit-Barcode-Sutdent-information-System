@@ -1,0 +1,62 @@
+---
+config:
+  themeVariables:
+    fontSize: 22px
+    fontFamily: 'Georgia, "Times New Roman", serif'
+  flowchart:
+    nodeSpacing: 30
+    rankSpacing: 35
+    padding: 8
+title: Use-Case Diagram
+---
+flowchart LR
+    REG(["Registrar"])
+    CASH(["Cashier"])
+    ADMIN(["Administrator"])
+    TECH(["Technical Staff"])
+
+    subgraph SYSTEM["WIT Barcode Student Information System"]
+        UC1(["Register / edit student records"])
+        UC2(["Search and browse the student directory"])
+        UC3(["Generate a CODE39 barcode and print an ID card"])
+        UC4(["Scan a student card with the webcam"])
+        UC5(["Record subject enrolment"])
+        UC6(["Create and maintain assessments and fees"])
+        UC7(["Record and void payments"])
+        UC8(["Issue a Certificate of Matriculation"])
+        UC9(["Produce reports and analytics"])
+        UC10(["Review the scan history and audit trail"])
+        UC11(["Manage the dataset and train the detector"])
+        UC12(["Configure the application and database"])
+        UC13(["Back up and restore the database"])
+    end
+
+    REG --> UC1
+    REG --> UC2
+    REG --> UC3
+    REG --> UC5
+    REG --> UC8
+    REG --> UC9
+    REG --> UC10
+
+    CASH --> UC4
+    CASH --> UC6
+    CASH --> UC7
+    CASH --> UC8
+
+    ADMIN --> UC12
+    ADMIN --> UC13
+    ADMIN --> UC11
+    ADMIN --> UC9
+
+    TECH --> UC11
+    TECH --> UC12
+    TECH --> UC10
+
+    UC4 -.->|"extends"| UC2
+    UC8 -.->|"extends"| UC6
+
+    classDef actor fill:#FFF4E5,stroke:#E08A2E,stroke-width:1.5px,color:#4A3520
+    classDef usecase fill:#EAF3FB,stroke:#3E7CB1,stroke-width:1.5px,color:#1E3A52
+    class REG,CASH,ADMIN,TECH actor
+    class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13 usecase

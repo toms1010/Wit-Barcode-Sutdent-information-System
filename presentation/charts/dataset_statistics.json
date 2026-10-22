@@ -1,0 +1,132 @@
+{
+  "datasets": {
+    "barcode": {
+      "train": 2,
+      "val": 2,
+      "test": 0,
+      "images": 4,
+      "annotations": 2,
+      "negative_images": 2,
+      "missing_labels": 0,
+      "invalid_boxes": 0,
+      "duplicate_files": 0,
+      "resolutions": 2
+    },
+    "barcode_all_students": {
+      "train": 3,
+      "val": 3,
+      "test": 2,
+      "images": 8,
+      "annotations": 6,
+      "negative_images": 2,
+      "missing_labels": 0,
+      "invalid_boxes": 0,
+      "duplicate_files": 0,
+      "resolutions": 6
+    },
+    "barcode_aug": {
+      "train": 22,
+      "val": 22,
+      "test": 0,
+      "images": 44,
+      "annotations": 42,
+      "negative_images": 2,
+      "missing_labels": 0,
+      "invalid_boxes": 0,
+      "duplicate_files": 0,
+      "resolutions": 6
+    },
+    "barcode_aug_all": {
+      "train": 43,
+      "val": 43,
+      "test": 22,
+      "images": 108,
+      "annotations": 106,
+      "negative_images": 2,
+      "missing_labels": 0,
+      "invalid_boxes": 0,
+      "duplicate_files": 0,
+      "resolutions": 22
+    },
+    "barcode_detection": {
+      "train": 67,
+      "val": 69,
+      "test": 0,
+      "images": 136,
+      "annotations": 134,
+      "negative_images": 2,
+      "missing_labels": 0,
+      "invalid_boxes": 0,
+      "duplicate_files": 0,
+      "resolutions": 19
+    },
+    "barcode_detection_all": {
+      "train": 68,
+      "val": 69,
+      "test": 60,
+      "images": 197,
+      "annotations": 195,
+      "negative_images": 2,
+      "missing_labels": 0,
+      "invalid_boxes": 0,
+      "duplicate_files": 0,
+      "resolutions": 30
+    },
+    "barcode_distance": {
+      "train": 414,
+      "val": 414,
+      "test": 0,
+      "images": 828,
+      "annotations": 812,
+      "negative_images": 16,
+      "missing_labels": 0,
+      "invalid_boxes": 0,
+      "duplicate_files": 8,
+      "resolutions": 1
+    },
+    "barcode_distance_all": {
+      "train": 410,
+      "val": 410,
+      "test": 406,
+      "images": 1226,
+      "annotations": 1218,
+      "negative_images": 8,
+      "missing_labels": 0,
+      "invalid_boxes": 0,
+      "duplicate_files": 0,
+      "resolutions": 1
+    }
+  },
+  "total_images": 2551,
+  "total_label_files": 2551,
+  "total_annotations": 2515,
+  "classes": {
+    "0": 2515
+  },
+  "total_bytes": 2766497572,
+  "resolutions": {
+    "1280x720": 2054,
+    "590x1004": 175,
+    "562x202": 71,
+    "608x187": 69,
+    "736x278": 44,
+    "270x459": 22,
+    "659x1043": 16,
+    "1414x2000": 12,
+    "724x1076": 8,
+    "620x229": 6,
+    "575x241": 6,
+    "383x652": 4,
+    "472x803": 4,
+    "737x1255": 4,
+    "754x329": 4,
+    "815x1117": 4,
+    "413x702": 4,
+    "767x1305": 4,
+    "628x270": 4,
+    "585x278": 4
+  },
+  "unique_resolutions": 43,
+  "median_box_w": 0.503514,
+  "median_box_h": 0.174441
+}

@@ -1,0 +1,104 @@
+[
+  {
+    "file": "01_dashboard.png",
+    "note": "Main dashboard: KPI cards, student overview table, database status indicator",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "02_students_directory.png",
+    "note": "Student directory with search/filter controls and paginated records",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "03_students_search.png",
+    "note": "Student directory filtered by a name query",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "04_scanner_idle.png",
+    "note": "Barcode scanner before scanning; camera list, YOLO status, history table",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "05_scanner_detection.png",
+    "note": "Live pipeline on a real ID-card asset: YOLO bounding box + guide overlay + decoded value",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "06_scanner_verified.png",
+    "note": "Verified scan: student identity card panel, decoded value and persisted history row",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "07_scan_result_dialog.png",
+    "note": "Structured scan-result modal (enrollment + financial tabs) for the verified student",
+    "width": 736,
+    "height": 736
+  },
+  {
+    "file": "08_scanner_unknown.png",
+    "note": "Unknown-barcode state: region detected and decoded, but no student row matches",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "09_enrollment.png",
+    "note": "Subject Enrollment: student selector, term, subject lines",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "10_courses_subjects.png",
+    "note": "Courses & Subjects read directly from the database",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "11_assessment_fees.png",
+    "note": "Assessment & Fees: assessment lines, payments and balance",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "12_reports.png",
+    "note": "Reports & Analytics: report catalogue backed by PDF/CSV generators",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "13_training_center.png",
+    "note": "Training Center: YOLO training, model registry and dataset tabs",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "14_settings.png",
+    "note": "Settings: general, database, scanner, barcode, appearance and backup tabs",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "15_certificate_com.png",
+    "note": "Certificate of Matriculation generated for a real student record",
+    "width": 1600,
+    "height": 1000
+  },
+  {
+    "file": "16_student_id_preview.png",
+    "note": "Student ID card preview rendered by the ID-card service (CR80, front face)",
+    "width": 600,
+    "height": 500
+  },
+  {
+    "file": "17_global_search.png",
+    "note": "Global quick-search in the top bar (Ctrl+K)",
+    "width": 1600,
+    "height": 1000
+  }
+]

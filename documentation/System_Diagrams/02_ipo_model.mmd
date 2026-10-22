@@ -1,0 +1,79 @@
+---
+config:
+  themeVariables:
+    fontSize: 22px
+    fontFamily: 'Georgia, "Times New Roman", serif'
+  flowchart:
+    nodeSpacing: 30
+    rankSpacing: 35
+    padding: 8
+title: Input - Process - Output (IPO) Model
+---
+flowchart LR
+    subgraph INPUTS["INPUTS"]
+        direction TB
+        I1["Student master data<br/>(name, reference, program,<br/>year level, section, photo)"]
+        I2["Catalogue data<br/>(courses, subjects,<br/>credits, hours)"]
+        I3["Enrolment data<br/>(term, semester,<br/>subjects, schedule, room)"]
+        I4["Assessment data<br/>(fee categories, amounts,<br/>discounts, instalments)"]
+        I5["Payment data<br/>(date, amount, method,<br/>reference, notes)"]
+        I6["Barcode symbology<br/>CODE39 payload + printed card image"]
+        I7["Camera frames<br/>(video still, 1280 x 720)"]
+        I8["System configuration<br/>(.env, system_settings,<br/>model and camera settings)"]
+        I1 ~~~ I2 ~~~ I3 ~~~ I4 ~~~ I5 ~~~ I6 ~~~ I7 ~~~ I8
+        linkStyle default opacity:0
+    end
+
+    subgraph PROCESSES["PROCESSING"]
+        direction TB
+        P1["Capture and preprocess<br/>frame (OpenCV)"]
+        P2["Detect the barcode region<br/>YOLOv8n inference"]
+        P3["Gate, crop and decode<br/>zxing-cpp / pyzbar"]
+        P4["Resolve the payload to a<br/>student by exact SQL lookup"]
+        P5["Compute enrolment,<br/>assessment and fee aggregates"]
+        P6["Render documents<br/>(COM, reports, ID card)"]
+        P7["Persist the transaction and<br/>write the audit trail"]
+        P1 ~~~ P2 ~~~ P3 ~~~ P4 ~~~ P5 ~~~ P6 ~~~ P7
+        linkStyle default opacity:0
+    end
+
+    subgraph OUTPUTS["OUTPUTS"]
+        direction TB
+        O1["Verified student identity<br/>(name, reference, student ID,<br/>portrait, program)"]
+        O2["Barcode scan history<br/>(time, payload, student, status)"]
+        O3["Certificate of Matriculation<br/>(screen, PDF, print)"]
+        O4["Assessment and payment<br/>statements and balances"]
+        O5["Enrolment summary and<br/>barcode / scan-log reports"]
+        O6["Printed student ID card<br/>(front and back)"]
+        O7["Operator feedback<br/>(status, audit cue, error states)"]
+        O1 ~~~ O2 ~~~ O3 ~~~ O4 ~~~ O5 ~~~ O6 ~~~ O7
+        linkStyle default opacity:0
+    end
+
+    I7 --> P1 --> P2 --> P3 --> P4
+    I6 --> P3
+    I1 --> P7
+    I2 --> P7
+    I3 --> P5
+    I4 --> P5
+    I5 --> P5
+    I8 --> P1
+    I8 --> P2
+
+    P4 --> O1
+    P4 --> O2
+    P4 --> P5
+    P5 --> O3
+    P5 --> O4
+    P5 --> O5
+    P6 --> O3
+    P6 --> O6
+    P7 --> O2
+    P4 --> O7
+
+    classDef input fill:#EAF3FB,stroke:#3E7CB1,stroke-width:1.5px,color:#1E3A52
+    classDef process fill:#FFE9C7,stroke:#D4761A,stroke-width:1.5px,color:#4A3520
+    classDef output fill:#E9F7EF,stroke:#2E8B57,stroke-width:1.5px,color:#1D4B32
+    class I1,I2,I3,I4,I5,I6,I7,I8 input
+    class P1,P2,P3,P4,P5,P6,P7 process
+    class O1,O2,O3,O4,O5,O6,O7 output

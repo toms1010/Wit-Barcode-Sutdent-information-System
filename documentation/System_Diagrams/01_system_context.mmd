@@ -1,0 +1,48 @@
+---
+config:
+  themeVariables:
+    fontSize: 22px
+    fontFamily: 'Georgia, "Times New Roman", serif'
+  flowchart:
+    nodeSpacing: 30
+    rankSpacing: 35
+    padding: 8
+title: WIT Barcode Student Information System - Context Diagram
+---
+flowchart TB
+    subgraph USERS["Users of the system"]
+        REG["Registrar / Records Officer"]
+        CASH["Cashier / Finance Officer"]
+        ADMIN["System Administrator"]
+        TECH["Laboratory / Technical Staff"]
+    end
+
+    subgraph WIT["WIT Barcode Student Information System"]
+        SYS["Barcode Student Information<br/>and Enrollment System<br/>(PySide6 desktop application)"]
+    end
+
+    subgraph EXTERNAL["External systems and services"]
+        MYSQL[("MySQL 8.4 Server<br/>wit_barcode_system")]
+        CAM["USB / Built-in Webcam<br/>(video frames)"]
+        YOLO[("YOLOv8n Detector<br/>models_yolo/active/best.pt")]
+        PRINTER["Document Printer / PDF Viewer"]
+        ZBAR["ZBar / zxing-cpp<br/>(CODE39 decoder)"]
+    end
+
+    REG -->|"enters student records,<br/>enrolments and assessments"| SYS
+    CASH -->|"records payments and<br/>issues matriculation certificates"| SYS
+    ADMIN -->|"configures the system,<br/>trains and promotes the detector"| SYS
+    TECH -->|"maintains the dataset and<br/>runs verification scripts"| SYS
+
+    SYS -->|"reads and writes<br/>student, enrolment and fee records"| MYSQL
+    SYS -->|"captures frames"| CAM
+    SYS -->|"loads weights, runs inference"| YOLO
+    SYS -->|"reads decoded symbols"| ZBAR
+    SYS -->|"exports COM, assessment<br/>and barcode reports"| PRINTER
+
+    classDef person fill:#FFF4E5,stroke:#E08A2E,stroke-width:1.5px,color:#4A3520
+    classDef system fill:#FFE9C7,stroke:#D4761A,stroke-width:2px,color:#4A3520
+    classDef external fill:#EAF3FB,stroke:#3E7CB1,stroke-width:1.5px,color:#1E3A52
+    class REG,CASH,ADMIN,TECH person
+    class SYS system
+    class MYSQL,CAM,YOLO,PRINTER,ZBAR external
