@@ -600,6 +600,7 @@ class ScannerPage(QWidget):
         self.student_name_label = QLabel()
         self.student_name_label.setFont(body_bold_font(16))
         self.student_name_label.setStyleSheet(f"color: {Colors.DARK_TEXT};")
+        self.student_name_label.setWordWrap(True)
 
         self.student_id_label = QLabel()
         self.student_id_label.setFont(small_label_font(11))
@@ -620,9 +621,7 @@ class ScannerPage(QWidget):
         student_details.addStretch()
 
         student_header.addWidget(self.student_avatar)
-        student_header.addLayout(student_details)
-        student_header.addStretch()
-
+        student_header.addLayout(student_details, 1)
         student_layout.addLayout(student_header)
 
         btn_layout = QHBoxLayout()
@@ -644,6 +643,17 @@ class ScannerPage(QWidget):
         btn_layout.addWidget(self.view_enrollment_btn)
         btn_layout.addWidget(self.view_assessment_btn)
         btn_layout.addStretch()
+
+        # Size each button to its own label so the full text always shows and the
+        # buttons stay neatly aligned within the narrow right panel.
+        for button in (
+            self.view_profile_btn,
+            self.view_enrollment_btn,
+            self.view_assessment_btn,
+        ):
+            button.setFixedWidth(
+                button.fontMetrics().horizontalAdvance(button.text()) + 30
+            )
 
         student_layout.addLayout(btn_layout)
         right_layout.addWidget(self.student_group)

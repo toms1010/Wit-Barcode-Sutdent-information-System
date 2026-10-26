@@ -243,7 +243,7 @@ class DashboardPage(QWidget):
             [
                 ColumnSpec("Student ID", width=110),
                 ColumnSpec("Reference No.", width=110),
-                ColumnSpec("Name", width=170, stretch=True),
+                ColumnSpec("Name", width=170),
                 ColumnSpec("Program", width=150, stretch=True),
                 ColumnSpec("Year Level", width=100),
                 ColumnSpec("Barcode / ID", width=120),
@@ -313,7 +313,7 @@ class DashboardPage(QWidget):
     def _build_table_toolbar(self) -> QHBoxLayout:
         """Build the toolbar with search and filter controls."""
         toolbar = QHBoxLayout()
-        toolbar.setSpacing(12)
+        toolbar.setSpacing(8)
 
         # Search
         search_label = QLabel("Search:")
@@ -324,13 +324,13 @@ class DashboardPage(QWidget):
         self.search_edit = QLineEdit()
         self.search_edit.setPlaceholderText("Search by name, ID, reference, program, or barcode…")
         self.search_edit.setClearButtonEnabled(True)
-        self.search_edit.setMinimumWidth(280)
+        self.search_edit.setMinimumWidth(200)
         self.search_edit.setMaximumWidth(400)
         self.search_edit.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         self.search_edit.textChanged.connect(self._on_search_changed)
         toolbar.addWidget(self.search_edit)
 
-        toolbar.addSpacing(16)
+        toolbar.addSpacing(8)
 
         # Status filter
         status_label = QLabel("Status:")
@@ -343,10 +343,10 @@ class DashboardPage(QWidget):
         for status in EnrollmentStatus:
             self.status_filter.addItem(status.value.title(), status.value)
         self.status_filter.currentIndexChanged.connect(self._on_status_filter_changed)
-        self.status_filter.setMinimumWidth(160)
+        self.status_filter.setMinimumWidth(130)
         toolbar.addWidget(self.status_filter)
 
-        toolbar.addSpacing(16)
+        toolbar.addSpacing(8)
 
         # Course filter
         course_label = QLabel("Program:")
@@ -357,10 +357,10 @@ class DashboardPage(QWidget):
         self.course_filter = QComboBox()
         self.course_filter.addItem("All Programs", "")
         self.course_filter.currentIndexChanged.connect(self._on_course_filter_changed)
-        self.course_filter.setMinimumWidth(180)
+        self.course_filter.setMinimumWidth(140)
         toolbar.addWidget(self.course_filter)
 
-        toolbar.addSpacing(16)
+        toolbar.addSpacing(8)
 
         # Year level filter
         year_label = QLabel("Year:")
@@ -373,7 +373,7 @@ class DashboardPage(QWidget):
         for year in ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year"]:
             self.year_filter.addItem(year, year)
         self.year_filter.currentIndexChanged.connect(self._on_year_filter_changed)
-        self.year_filter.setMinimumWidth(120)
+        self.year_filter.setMinimumWidth(90)
         toolbar.addWidget(self.year_filter)
 
         toolbar.addStretch()
@@ -806,6 +806,7 @@ class DashboardPage(QWidget):
         name_label = QLabel(student.full_name)
         name_label.setFont(body_bold_font(16))
         name_label.setStyleSheet(f"color: {Colors.DARK_TEXT};")
+        name_label.setWordWrap(True)
         info_layout.addWidget(name_label)
 
         id_label = QLabel(f"Student ID: {student.student_id}  •  Ref: {student.reference_number}")
@@ -816,6 +817,7 @@ class DashboardPage(QWidget):
         program_label = QLabel(f"{student.program}  •  {student.year_level.value if hasattr(student.year_level, 'value') else str(student.year_level)}")
         program_label.setFont(small_label_font(11))
         program_label.setStyleSheet(f"color: {Colors.LIGHT_TEXT};")
+        program_label.setWordWrap(True)
         info_layout.addWidget(program_label)
 
         # ID Status badge
@@ -832,8 +834,7 @@ class DashboardPage(QWidget):
         info_layout.addStretch()
 
         header_layout.addWidget(avatar)
-        header_layout.addLayout(info_layout)
-        header_layout.addStretch()
+        header_layout.addLayout(info_layout, 1)
         self.details_layout.addWidget(header_widget)
 
         # Divider
@@ -893,6 +894,15 @@ class DashboardPage(QWidget):
         edit_btn.setProperty("secondary", "true")
         edit_btn.clicked.connect(lambda: self._edit_student(student))
         actions_layout.addWidget(edit_btn)
+
+        # Size each button to its own label so the full text always shows and
+        # the three buttons stay aligned instead of crowding the panel edge.
+        _btn_font = button_font(11)
+        for button in (view_id_btn, print_id_btn, edit_btn):
+            button.setFixedWidth(
+                _btn_font.horizontalAdvance(button.text()) + 30
+            )
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.details_layout.addLayout(actions_layout)
         self.details_layout.addStretch()
