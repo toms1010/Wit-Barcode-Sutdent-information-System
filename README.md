@@ -375,6 +375,7 @@ All screenshots are stored in `documentation/screenshots/`. See `documentation/s
 
 Developed for Western Institute of Technology (WIT).
 
+- **Tommy Paolma** — Developer
 - **WIT IT Department**: For issues and feature requests
 
 ## License
