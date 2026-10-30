@@ -1,12 +1,51 @@
 # WIT Barcode Student Information System
 
-A complete Barcode Student Information and Subject Enrollment System for Western Institute of Technology (WIT).
+![WIT Logo](assets/logos/wit_logo.png)
 
-## Features
+A complete Barcode Student Information and Subject Enrollment System for Western Institute of Technology (WIT). Built as a desktop PySide6 application with a MySQL backend, YOLOv8n barcode detection, CODE39 barcode generation/decoding, and PDF report generation.
+
+## Project Screenshots
+
+Genuine screenshots captured from the live application (1600×950):
+
+| Page | Screenshot |
+|------|------------|
+| Dashboard | ![Dashboard](documentation/screenshots/01_dashboard.png) |
+| Dashboard (student selected) | ![Dashboard Detail](documentation/screenshots/02_dashboard_student_selected.png) |
+| Students Directory | ![Students](documentation/screenshots/03_students_directory.png) |
+| Add Student Dialog | ![Add Student](documentation/screenshots/05_student_dialog_add.png) |
+| Subject Enrollment | ![Enrolment](documentation/screenshots/08_enrollment_subjects.png) |
+| Certificate of Matriculation | ![Certificate](documentation/screenshots/11_certificate_of_matriculation.png) |
+| Assessment & Fees | ![Assessment](documentation/screenshots/12_assessment_fees.png) |
+| Reports & Analytics | ![Reports](documentation/screenshots/14_reports_analytics.png) |
+| Scanner (verified) | ![Scanner](documentation/screenshots/17_scanner_verified.png) |
+| Scan Result Panel | ![Scan Result](documentation/screenshots/18_scan_result_dialog.png) |
+| Live Camera | ![Live Camera](documentation/screenshots/19_scanner_camera_running.png) |
+| Training Center | ![Training](documentation/screenshots/21_training_center_training.png) |
+| Settings | ![Settings](documentation/screenshots/23_settings.png) |
+
+> 📁 All 23 screenshots are in `documentation/screenshots/` with a manifest at `documentation/screenshots/screenshot_manifest.txt`.
+
+### Data Visualizations
+
+Six charts generated from real project data:
+
+| Chart | Description | Preview |
+|-------|-------------|---------|
+| Assessment Breakdown | Tuition, Misc, Lab, CDA fees per student | ![Assessment](documentation/charts/chart1_assessment_breakdown.png) |
+| Payment Schedule | 4 instalments (all overdue) | ![Payments](documentation/charts/chart2_payment_schedule.png) |
+| Detector Performance | GPU vs CPU inference latency & fps | ![Performance](documentation/charts/chart3_detector_performance.png) |
+| Scan Success Rate | 49 success / 24 not-found (67.1%) | ![Scans](documentation/charts/chart4_scan_success.png) |
+| Test Results | 24 test modules, 557 tests passed | ![Tests](documentation/charts/chart5_test_results.png) |
+| Subject Credits | 7 subjects, 20 total credits | ![Credits](documentation/charts/chart6_subject_credits.png) |
+
+> 📁 All charts are in `documentation/charts/`.
+
+## Key Features
 
 - **Student Management**: Register, edit, view, and search student records
 - **Barcode Generation**: Generate CODE39 barcodes for students
-- **Barcode Scanning**: Webcam-based barcode scanning with YOLO detection
+- **Barcode Scanning**: Webcam-based barcode scanning with YOLOv8n detection
 - **Subject Enrollment**: Manage student enrollments and subjects
 - **Certificate of Matriculation**: Generate printable certificates
 - **Assessment & Fees**: Track tuition, fees, discounts, payments, and balances
@@ -14,42 +53,74 @@ A complete Barcode Student Information and Subject Enrollment System for Western
 - **Training Center**: Manage YOLO dataset and model training
 - **Modern UI**: Clean, professional light theme with WIT branding
 
-## Technology Stack
+## Technologies and Tools Used
 
-The complete, version-verified list of every technology the system uses — plus the
-model that is trained and its full training recipe — is maintained in
-[`TECHNOLOGY_STACK.md`](TECHNOLOGY_STACK.md). Summary:
+The complete, version-verified list of every technology the system uses — plus the model that is trained and its full training recipe — is maintained in [`TECHNOLOGY_STACK.md`](TECHNOLOGY_STACK.md). Summary:
 
-- **Runtime**: Python 3.14.4 on a Linux workstation with an NVIDIA RTX 2050 (CUDA)
-- **GUI**: PySide6 6.12 (Qt 6) — desktop widgets app, no web framework
-- **Database**: MySQL 8.4 via mysql-connector-python (raw SQL, no ORM)
-- **Computer Vision / ML**: Ultralytics 8.4 (YOLOv8n), PyTorch 2.14, OpenCV 5.0
-- **Barcode**: python-barcode 0.16 (CODE39 generation), pyzbar 0.1.9 (ZBar decoding)
-- **Documents**: ReportLab 5.0 (A4 PDF), matplotlib (charts)
-- **Configuration**: python-dotenv
-- **Testing**: pytest, pytest-qt, pytest-mock
+| Layer | Technology | Version | Role |
+|-------|------------|---------|------|
+| Runtime | Python | 3.14.4 | Application interpreter |
+| GUI | PySide6 (Qt 6) | 6.12 | Desktop widgets app, no web framework |
+| Database | MySQL Server | 8.4 | Local InnoDB server, `wit_barcode_system` database |
+| DB Driver | mysql-connector-python | — | Official driver, connection pool, raw SQL, no ORM |
+| Computer Vision / ML | Ultralytics (YOLOv8n) | 8.4 | Barcode detection training and inference |
+| Tensor Runtime | PyTorch | 2.14 | CUDA / CPU tensor backend |
+| Image Processing | OpenCV | 5.0 | Frame, crop, and preprocessing operations |
+| Barcode Generation | python-barcode | 0.16 | CODE39 symbol generation |
+| Barcode Decoding | pyzbar (ZBar) | 0.1.9 | CODE39 payload decoding |
+| Documents | ReportLab | 5.0 | A4 PDF generation |
+| Charts | matplotlib | — | Data visualization |
+| Configuration | python-dotenv | — | `.env` environment loading |
+| Testing | pytest, pytest-qt, pytest-mock | — | Unit and GUI testing |
 
-## Model to Train
+**Hardware**: NVIDIA RTX 2050 (4 GB, CUDA) with CPU fallback; Linux workstation.
 
-A **YOLOv8n (nano)** detector, fine-tuned from COCO-pretrained `yolov8n.pt` for a
-single class — `barcode`:
+## System Architecture
 
-- **Why nano**: one narrow class; 6.48 MB checkpoint; measured inference 22.49 ms
-  mean on the RTX 2050 (CPU fallback 218 ms) — the only configuration with headroom
-  for a 12 FPS live camera preview.
-- **Recipe**: 640 px input, batch 16, AdamW (lr0 0.002), 100 epochs requested with
-  patience 30, seed 0, `tame` augmentation profile on small datasets.
-- **Dataset**: `datasets/barcode_distance` (414 train / 414 val); annotations derived
-  from real pyzbar decodes; splits assigned per physical card to prevent leakage.
-- **Promotion**: a candidate only replaces `models_yolo/active/best.pt` if it passes
-  the evidence gate in `scripts/train_yolo.py` (zero false positives on barcode-free
-  documents, held-out decode rate ≥ the active model). The promoted checkpoint is
-  best-epoch 34 of the v7-distance run, not the last epoch.
+The system is a single-process desktop application. UI-to-data communication is in-process Python — there is **no HTTP API** and no web server.
 
-Full details, commands and verification sources:
-[`TECHNOLOGY_STACK.md`](TECHNOLOGY_STACK.md) §2.
+Architecture and sequence diagrams are maintained in the repository:
 
-## Installation
+| Diagram | File |
+|---------|------|
+| System Context | `documentation/System_Diagrams/01_system_context.png` |
+| IPO Model | `documentation/System_Diagrams/02_ipo_model.png` |
+| System Architecture | `documentation/System_Diagrams/03_system_architecture.png` |
+| Scan Pipeline Flowchart | `documentation/System_Diagrams/04_scan_pipeline_flowchart.png` |
+| Entity Relationship Diagram | `documentation/System_Diagrams/05_entity_relationship_diagram.png` |
+| Use Case Diagram | `documentation/System_Diagrams/06_use_case_diagram.png` |
+| Data Flow Diagram | `documentation/System_Diagrams/07_data_flow_diagram.png` |
+| YOLO Training Pipeline | `documentation/System_Diagrams/08_yolo_training_pipeline.png` |
+
+Each diagram has a corresponding `.mmd` Mermaid source file alongside its PNG, plus a `render_diagrams.py` render script.
+
+## Frontend Documentation
+
+The PySide6 frontend (ten routed pages, camera preview, dialogs, theme) is documented in:
+
+- [`docs/frontend/02_Frontend_Technical_Documentation.docx`](docs/frontend/02_Frontend_Technical_Documentation.docx)
+
+Frontend pages live in `ui/`: `main_window.py`, `dashboard.py`, `students_page.py`, `scanner_page.py`, `barcode_generator_page.py`, `enrollment_page.py`, `assessment_page.py`, `reports_page.py`, `training_center.py`, `settings_page.py`, `certificate_page.py`, `courses_page.py`, plus `login_dialog.py` and `password_change_dialog.py`.
+
+## Backend Documentation
+
+Backend services, data layer, authentication, validation, error handling, and logging are documented in:
+
+- [`docs/backend/03_Backend_Technical_Documentation.docx`](docs/backend/03_Backend_Technical_Documentation.docx)
+
+Backend modules live in `config/`, `database/`, `models/`, and `services/`.
+
+## Database Structure
+
+- **Server**: MySQL 8.4 (InnoDB)
+- **Database**: `wit_barcode_system`
+- **Tables**: 19 (including `users`, `students`, `subjects`, `enrollments`, `assessments`, `payments`, `scan_logs`, and more)
+- **Driver**: mysql-connector-python with a connection pool; raw SQL, no ORM
+- **Schema**: `database/schema.py`
+- **Connection**: `database/connection.py` (with retry/throttling and `DatabaseUnavailableError` contract)
+- **Initialization**: `python scripts/initialize_database.py` (creates the database, schema, and seeds the first admin account)
+
+## Installation and Setup
 
 ### Prerequisites
 
@@ -71,7 +142,7 @@ brew install mysql zbar
 
 #### Windows
 
-- Install MySQL from mysql.com
+- Install MySQL from <https://www.mysql.com/>
 - Install ZBar from <https://sourceforge.net/projects/zbar/>
 
 ### Setup
@@ -79,299 +150,191 @@ brew install mysql zbar
 1. Clone the repository:
 
 ```bash
-cd "WIT Barcode Student Information System"
+git clone https://github.com/toms1010/Wit-Barcode-Sutdent-information-System.git
+cd "Wit-Barcode-Sutdent-information-System"
 ```
 
-1. Create virtual environment:
+2. Create and activate a virtual environment:
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# venv\Scripts\activate  # Windows
+# Linux/macOS:
+source venv/bin/activate
+# Windows:
+# venv\Scripts\activate
 ```
 
-1. Install dependencies:
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-1. Configure database:
+4. Configure environment:
 
 ```bash
 cp .env.example .env
 # Edit .env with your database credentials
 ```
 
-1. Initialize database:
+5. Initialize the database:
 
 ```bash
 python scripts/initialize_database.py
 ```
 
-1. Run the application:
+6. Run the application:
 
 ```bash
 python main.py
 ```
 
-## Project Structure
+## Configuration and Environment Variables
 
-```text
-wit_barcode_system/
-├── main.py                 # Entry point
-├── requirements.txt        # Python dependencies
-├── .env.example           # Environment configuration template
-├── config/                # Configuration modules
-├── database/              # Database connection, schema, repositories
-├── models/                # Data models
-├── services/              # Business logic services
-├── ui/                    # User interface
-│   ├── main_window.py     # Main application window
-│   ├── dashboard.py       # Dashboard page
-│   ├── students_page.py   # Student management
-│   ├── scanner_page.py    # Barcode scanner
-│   ├── barcode_generator_page.py
-│   ├── enrollment_page.py # Subject enrollment
-│   ├── assessment_page.py # Fees & payments
-│   ├── reports_page.py    # Reports
-│   ├── training_center.py # YOLO training
-│   └── settings_page.py   # Settings
-├── styles/                # Theming (colors, typography, QSS)
-├── assets/                # Images, fonts, icons
-├── dataset/               # YOLO dataset
-├── models_yolo/           # YOLO models
-├── generated_barcodes/    # Generated barcode images
-├── reports/               # Generated PDF reports
-└── scripts/               # Utility scripts
-```
-
-## Configuration
-
-Edit `.env` file for configuration:
+Edit `.env` (created from `.env.example`). `.env` is gitignored — never commit real credentials.
 
 ```env
 # Database
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=wit_barcode_system
-DB_USER=root
-DB_PASSWORD=your_password
+DB_USER=wit_user
+DB_PASSWORD=your_password_here
 
-# YOLO
+# Application
+APP_NAME=WIT Barcode Student Information System
+APP_VERSION=1.0.0
+DEBUG=False
+
+# YOLO Model
 YOLO_MODEL_PATH=models_yolo/active/best.pt
-YOLO_CONFIDENCE_THRESHOLD=0.5
+YOLO_CONFIDENCE_THRESHOLD=0.35
+YOLO_IOU_THRESHOLD=0.45
 YOLO_DEVICE=cpu
 
 # Camera
 DEFAULT_CAMERA_INDEX=0
 CAMERA_WIDTH=1280
 CAMERA_HEIGHT=720
+CAMERA_FPS=30
 
 # Barcode
 BARCODE_PREFIX=WIT:STUDENT:
 BARCODE_OUTPUT_DIR=generated_barcodes
+BARCODE_IMAGE_FORMAT=PNG
+BARCODE_MODULE_WIDTH=2
+BARCODE_MODULE_HEIGHT=15
+
+# Scan
+SCAN_DUPLICATE_SUPPRESSION_SECONDS=5
+SCAN_TARGET_FPS=12
+SCAN_CONFIRM_FRAMES=1
+SCAN_COOLDOWN_SECONDS=3.0
+
+# Reports
+REPORTS_OUTPUT_DIR=reports
+PDF_PAGE_SIZE=A4
+
+# Logging
+LOG_LEVEL=INFO
+LOG_FILE=logs/app.log
+
+# Admin
+WIT_ADMIN_PASSWORD=your_admin_password_here
 ```
 
-## 📊 Data Visualizations
+> ⚠️ The local MySQL `root` account uses `auth_socket` and only works from a root shell, so the application would fail with "1045 Access denied" if `DB_USER=root`. Use the dedicated `wit_user` account as shown above.
 
-The system includes 6 data visualization charts generated from real project data:
-
-| Chart | Description | Preview |
-| ------- | ------------- | --------- |
-| Assessment Breakdown | Tuition, Misc, Lab, CDA fees per student | ![Assessment](documentation/charts/chart1_assessment_breakdown.png) |
-| Payment Schedule | 4 instalments (all overdue) | ![Payments](documentation/charts/chart2_payment_schedule.png) |
-| Detector Performance | GPU vs CPU inference latency & fps | ![Performance](documentation/charts/chart3_detector_performance.png) |
-| Scan Success Rate | 49 success / 24 not-found (67.1%) | ![Scans](documentation/charts/chart4_scan_success.png) |
-| Test Results | 24 test modules, 557 tests passed | ![Tests](documentation/charts/chart5_test_results.png) |
-| Subject Credits | 7 subjects, 20 total credits | ![Credits](documentation/charts/chart6_subject_credits.png) |
-
-## 📸 Application Screenshots
-
-23 genuine screenshots captured from the live application (1600×950):
-
-| Page | Screenshot |
-| ------ | ----------- |
-| Dashboard | ![Dashboard](documentation/screenshots/01_dashboard.png) |
-| Dashboard (student selected) | ![Dashboard Detail](documentation/screenshots/02_dashboard_student_selected.png) |
-| Students Directory | ![Students](documentation/screenshots/03_students_directory.png) |
-| Add Student Dialog | ![Add Student](documentation/screenshots/05_student_dialog_add.png) |
-| Enrolment (subjects) | ![Enrolment](documentation/screenshots/08_enrollment_subjects.png) |
-| Certificate of Matriculation | ![Certificate](documentation/screenshots/11_certificate_of_matriculation.png) |
-| Assessment & Fees | ![Assessment](documentation/screenshots/12_assessment_fees.png) |
-| Reports & Analytics | ![Reports](documentation/screenshots/14_reports_analytics.png) |
-| Scanner (verified) | ![Scanner](documentation/screenshots/17_scanner_verified.png) |
-| Scan Result Panel | ![Scan Result](documentation/screenshots/18_scan_result_dialog.png) |
-| Scanner (live camera) | ![Live Camera](documentation/screenshots/19_scanner_camera_running.png) |
-| Training Center (training) | ![Training](documentation/screenshots/21_training_center_training.png) |
-| Settings | ![Settings](documentation/screenshots/23_settings.png) |
-
-> 📁 All 23 screenshots are in `documentation/screenshots/` with a manifest at `screenshot_manifest.txt`
-
-## 📥 Downloadable Deliverables
-
-### Presentation
-
-| File | Description | Download |
-| --- | --- | --- |
-| `WIT_Barcode_Student_Information_System_Technical_Presentation.pptx` | Technical presentation (PowerPoint) | [⬇️ Download PPTX](presentation/WIT_Barcode_Student_Information_System_Technical_Presentation.pptx) |
-| `WIT_Animation_Delivery_Report.md` | Animation delivery report | [⬇️ Download MD](presentation/WIT_Animation_Delivery_Report.md) |
-
-### Documentation
-
-| File | Description | Download |
-| ------ | ------------- | ---------- |
-| `Project_Documentation.docx` | Full IMRaD documentation (Word) | [⬇️ Download DOCX](documentation/Project_Documentation.docx) |
-| `Project_Documentation.pdf` | Full IMRaD documentation (PDF) | [⬇️ Download PDF](documentation/Project_Documentation.pdf) |
-| `Project_Documentation.md` | Full IMRaD documentation (Markdown) | [⬇️ Download MD](documentation/Project_Documentation.md) |
-| `QUICK_START.md` | Quick reference guide | [⬇️ Download MD](documentation/QUICK_START.md) |
-
-### Diagrams
-
-| File | Description |
-| --- | --- |
-| `documentation/System_Diagrams/` | 8 Mermaid + 8 PNGs + render script |
-| `documentation/screenshots/` | 23 genuine application screenshots + manifest |
-
-### Quick Download Links
-
-[Download Presentation](presentation/WIT_Barcode_Student_Information_System_Technical_Presentation.pptx)
-
-[Download Documentation DOCX](documentation/Project_Documentation.docx)
-
-[Download Documentation PDF](documentation/Project_Documentation.pdf)
-
-[Download Documentation MD](documentation/Project_Documentation.md)
-
-## Fonts
-
-Place font files in:
-
-- `assets/fonts/open-sauce/` - Open Sauce font family
-- `assets/fonts/agrandir/` - Agrandir font family
-
-The application will use system fonts as fallback if custom fonts are not available.
-
-## YOLO Dataset
-
-Prepare your dataset in `dataset/`:
-
-```text
-dataset/
-├── data.yaml
-├── images/
-│   ├── train/
-│   ├── val/
-│   └── test/
-└── labels/
-    ├── train/
-    ├── val/
-    └── test/
-```
-
-Run validation:
+## How to Run the Project
 
 ```bash
-python scripts/validate_dataset.py
+python main.py
 ```
 
-Train model:
+The application starts at the login dialog. After successful authentication, the main window opens with the Dashboard. Routing between pages happens in-app; no browser is involved.
 
-```bash
-python scripts/train_yolo.py
-```
+## API Documentation
 
-## Usage
+This is a **desktop PySide6 application with no HTTP API**. All UI-to-data communication is in-process Python; no HTTP endpoints, REST routes, or web server exist. API documentation is therefore not applicable. For the in-process service layer, see [`docs/backend/03_Backend_Technical_Documentation.docx`](docs/backend/03_Backend_Technical_Documentation.docx).
 
-### Adding Students
-
-1. Navigate to **Students** page
-2. Click **Add Student**
-3. Fill in details and save
-
-### Generating Barcodes
-
-1. Go to **Barcode Generator**
-2. Select students (or click **Generate All Missing**)
-3. Barcodes are saved to `generated_barcodes/`
-
-### Scanning Barcodes
-
-1. Go to **Barcode Scanner**
-2. Select camera and click **Start Scanner**
-3. Point barcode at camera
-4. On a verified scan the student's portrait, reference, program and year level
-   appear, a history row is appended to Scan History, a success tone plays, and
-   the structured result modal opens with the COM and Financial tabs.
-
-A barcode is only reported as a success once it has been decoded **and** the
-student row has been confirmed in the database. A card held in frame produces one
-scan: it must leave the frame, or **Scan Next Student** must start a new session,
-before it can be recorded again.
-
-Student portraits live in `assets/profile/`. The identifier-to-portrait mapping,
-how it was verified, and the missing-asset behaviour are documented in
-[`reports/PROFILE_IMAGE_MAPPING.md`](reports/PROFILE_IMAGE_MAPPING.md).
-Outstanding data problems (the printed reference on `student_2_info.png`, the
-third student's missing information panel, and the PHP 489.51 gap between the
-printed assessment and the installment schedule) are listed in
-[`reports/ADMIN_ACTIONS_REQUIRED.md`](reports/ADMIN_ACTIONS_REQUIRED.md).
-
-### Students on file
-
-| Barcode payload | Card | Reference | Student | Portrait |
-| --- | --- | --- | --- | --- |
-| `000065412` | `Id_1.png` / `barcode_2.png` | `65412` | Javy Danielle N. Caporal | `javy_profile.png` |
-| `000065902` | `Id_2.png` / `barcode_1.png` | `65902` | Ronna Mae D. Alemania | `ronna_profile.png` |
-| `000065736` | `Id_3.png` / `barcode_3.png` | `65736` | Steven Anthony M. Oquiana | `Steven_profile.png` |
-
-The payloads were decoded from the assets; the `barcode_N.png` filenames do
-**not** line up with the `Id_N.png` cards, so nothing in the application keys on
-a filename. In fact `assets/barcodes/barcode_N.png` are the *generated* symbols,
-byte-identical to the matching files in `generated_barcodes/`.
-
-`Id_3.png` is a smaller card than the other two (270x459, with a 204 px-wide
-symbol -- about 1.85 px per narrow CODE39 element), which is why the decoder
-interpolates undersampled crops before it filters them; see
-[`reports/STUDENT_3_INTEGRATION.md`](reports/STUDENT_3_INTEGRATION.md) and, for
-the measurements behind the current settings,
-[`reports/CARD_C_RECOGNITION_REPORT.md`](reports/CARD_C_RECOGNITION_REPORT.md).
-
-A frame that yields **two different payloads** in one read is refused
-(`ScanState.AMBIGUOUS`) rather than resolved: both values map to real students,
-so choosing one would be a coin toss between two people. The operator is asked to
-present a single card.
-
-### Managing Enrollment
-
-1. Go to **Subject Enrollment**
-2. Select a student
-3. Create enrollment and add subjects
-
-### Assessments & Payments
-
-1. Go to **Assessment & Fees**
-2. Select a student
-3. Create assessment and record payments
-
-## Development
-
-### Running Tests
+## Testing
 
 ```bash
 pytest tests/
 ```
 
-### Code Style
+The test suite uses `pytest`, `pytest-qt`, and `pytest-mock` across 24 test modules.
 
-- Follow PEP 8
-- Use type hints
-- Document public APIs
+## Deployment Instructions
+
+Deployment, installation, and maintenance procedures are documented in:
+
+- [`docs/deployment/06_Installation_and_Maintenance_Manual.docx`](docs/deployment/06_Installation_and_Maintenance_Manual.docx)
+
+## Project Folder Structure
+
+```text
+WIT Barcode Student Information System/
+├── main.py                          # Entry point (login -> main window loop)
+├── requirements.txt                 # Python dependencies
+├── .env.example                     # Environment configuration template
+├── .gitignore
+├── pytest.ini
+├── setup_database.sh                # Database setup script
+├── setup_db.sh
+├── yolov8n.pt                       # YOLOv8n nano checkpoint (COCO-pretrained)
+├── TECHNOLOGY_STACK.md              # Full verified technology list & model training recipe
+├── DATABASE_SETUP.md
+├── DEBUG_FIX_SUMMARY.md
+├── ERROR_TRACE_REPORT.md
+├── FINAL_DEBUG_REPORT.md
+├── IMPLEMENTATION_SUMMARY.md
+├── config/                          # Configuration (settings, logging, student assets)
+├── database/                        # Database connection, schema, repositories, migrations
+├── models/                          # Data models
+├── services/                        # Business logic services
+├── ui/                              # User interface (PySide6 pages & dialogs)
+├── styles/                          # Theming (colors, typography, QSS)
+├── assets/                          # Images, fonts, icons, barcodes, logos, profile photos
+│   ├── backgrounds/
+│   ├── barcodes/
+│   ├── images/
+│   ├── logos/
+│   ├── manifests/
+│   └── profile/
+├── dataset/                         # Dataset report
+├── datasets/                        # YOLO dataset splits (barcode_distance, etc.)
+├── models_yolo/                     # YOLO models (active, backups, candidates)
+├── generated_barcodes/              # Generated barcode images
+├── generated_id_cards/              # Generated ID cards
+├── reports/                         # Generated PDF reports and verification reports
+├── logs/                            # Application logs
+├── scripts/                         # Utility scripts (database init, training, validation, etc.)
+├── tests/                           # pytest test suite
+├── tools/                           # Documentation generation tool
+├── docs/                            # Generated technical documentation (.docx)
+│   ├── backend/
+│   ├── deployment/
+│   ├── frontend/
+│   ├── learning-guide/
+│   ├── project/
+│   ├── quality/
+│   └── source-code/
+├── documentation/                   # Charts, screenshots, system diagrams
+│   ├── charts/
+│   ├── screenshots/
+│   └── System_Diagrams/
+└── presentation/                    # Technical presentation (PPTX) and delivery assets
+```
+
+## Developers and Contributors
+
+Developed for Western Institute of Technology (WIT).
+
+| Role | Contact |
+|------|---------|
+| WIT IT Department | For issues and feature requests |
 
 ## License
 
 Proprietary - Western Institute of Technology
-
-## Support
-
-For issues and feature requests, contact the WIT IT Department.# Wit-Barcode-Sutdent-information-System

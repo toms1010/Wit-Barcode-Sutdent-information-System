@@ -57,6 +57,12 @@ dataset/labels/
 *.mp4
 *.avi
 
+# Allow genuine project image assets to be tracked on GitHub
+# (screenshots, charts, and logo are hand-crafted, not build artifacts)
+!documentation/screenshots/*.png
+!documentation/charts/*.png
+!assets/logos/*.png
+
 # Fonts
 assets/fonts/
 
