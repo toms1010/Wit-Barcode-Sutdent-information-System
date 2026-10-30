@@ -4,42 +4,11 @@
 
 A complete Barcode Student Information and Subject Enrollment System for Western Institute of Technology (WIT). Built as a desktop PySide6 application with a MySQL backend, YOLOv8n barcode detection, CODE39 barcode generation/decoding, and PDF report generation.
 
-## Project Screenshots
+## Project Overview
 
-Genuine screenshots captured from the live application (1600×950):
+The WIT Barcode Student Information System manages student records, barcode-based student identification, subject enrollment, tuition assessment, and fee payments. It is a single-process desktop application: all UI-to-data communication happens in-process Python, so there is no HTTP API and no web server.
 
-| Page | Screenshot |
-|------|------------|
-| Dashboard | ![Dashboard](documentation/screenshots/01_dashboard.png) |
-| Dashboard (student selected) | ![Dashboard Detail](documentation/screenshots/02_dashboard_student_selected.png) |
-| Students Directory | ![Students](documentation/screenshots/03_students_directory.png) |
-| Add Student Dialog | ![Add Student](documentation/screenshots/05_student_dialog_add.png) |
-| Subject Enrollment | ![Enrolment](documentation/screenshots/08_enrollment_subjects.png) |
-| Certificate of Matriculation | ![Certificate](documentation/screenshots/11_certificate_of_matriculation.png) |
-| Assessment & Fees | ![Assessment](documentation/screenshots/12_assessment_fees.png) |
-| Reports & Analytics | ![Reports](documentation/screenshots/14_reports_analytics.png) |
-| Scanner (verified) | ![Scanner](documentation/screenshots/17_scanner_verified.png) |
-| Scan Result Panel | ![Scan Result](documentation/screenshots/18_scan_result_dialog.png) |
-| Live Camera | ![Live Camera](documentation/screenshots/19_scanner_camera_running.png) |
-| Training Center | ![Training](documentation/screenshots/21_training_center_training.png) |
-| Settings | ![Settings](documentation/screenshots/23_settings.png) |
-
-> 📁 All 23 screenshots are in `documentation/screenshots/` with a manifest at `documentation/screenshots/screenshot_manifest.txt`.
-
-### Data Visualizations
-
-Six charts generated from real project data:
-
-| Chart | Description | Preview |
-|-------|-------------|---------|
-| Assessment Breakdown | Tuition, Misc, Lab, CDA fees per student | ![Assessment](documentation/charts/chart1_assessment_breakdown.png) |
-| Payment Schedule | 4 instalments (all overdue) | ![Payments](documentation/charts/chart2_payment_schedule.png) |
-| Detector Performance | GPU vs CPU inference latency & fps | ![Performance](documentation/charts/chart3_detector_performance.png) |
-| Scan Success Rate | 49 success / 24 not-found (67.1%) | ![Scans](documentation/charts/chart4_scan_success.png) |
-| Test Results | 24 test modules, 557 tests passed | ![Tests](documentation/charts/chart5_test_results.png) |
-| Subject Credits | 7 subjects, 20 total credits | ![Credits](documentation/charts/chart6_subject_credits.png) |
-
-> 📁 All charts are in `documentation/charts/`.
+The application provides ten routed pages plus login and password-change dialogs, a live camera barcode scanner backed by YOLOv8n detection, CODE39 barcode generation, A4 PDF certificate and report generation, and a YOLO model training center.
 
 ## Key Features
 
@@ -57,42 +26,36 @@ Six charts generated from real project data:
 
 The complete, version-verified list of every technology the system uses — plus the model that is trained and its full training recipe — is maintained in [`TECHNOLOGY_STACK.md`](TECHNOLOGY_STACK.md). Summary:
 
-| Layer | Technology | Version | Role |
-|-------|------------|---------|------|
-| Runtime | Python | 3.14.4 | Application interpreter |
-| GUI | PySide6 (Qt 6) | 6.12 | Desktop widgets app, no web framework |
-| Database | MySQL Server | 8.4 | Local InnoDB server, `wit_barcode_system` database |
-| DB Driver | mysql-connector-python | — | Official driver, connection pool, raw SQL, no ORM |
-| Computer Vision / ML | Ultralytics (YOLOv8n) | 8.4 | Barcode detection training and inference |
-| Tensor Runtime | PyTorch | 2.14 | CUDA / CPU tensor backend |
-| Image Processing | OpenCV | 5.0 | Frame, crop, and preprocessing operations |
-| Barcode Generation | python-barcode | 0.16 | CODE39 symbol generation |
-| Barcode Decoding | pyzbar (ZBar) | 0.1.9 | CODE39 payload decoding |
-| Documents | ReportLab | 5.0 | A4 PDF generation |
-| Charts | matplotlib | — | Data visualization |
-| Configuration | python-dotenv | — | `.env` environment loading |
-| Testing | pytest, pytest-qt, pytest-mock | — | Unit and GUI testing |
+- **Runtime**: Python 3.14.4
+- **GUI**: PySide6 (Qt 6) 6.12 — desktop widgets app, no web framework
+- **Database**: MySQL Server 8.4, local InnoDB server, `wit_barcode_system` database
+- **DB Driver**: mysql-connector-python — connection pool, raw SQL, no ORM
+- **Computer Vision / ML**: Ultralytics (YOLOv8n) 8.4 — barcode detection training and inference
+- **Tensor Runtime**: PyTorch 2.14 — CUDA / CPU tensor backend
+- **Image Processing**: OpenCV 5.0 — frame, crop, and preprocessing operations
+- **Barcode Generation**: python-barcode 0.16 — CODE39 symbol generation
+- **Barcode Decoding**: pyzbar (ZBar) 0.1.9 — CODE39 payload decoding
+- **Documents**: ReportLab 5.0 — A4 PDF generation
+- **Charts**: matplotlib — data visualization
+- **Configuration**: python-dotenv — `.env` environment loading
+- **Testing**: pytest, pytest-qt, pytest-mock — unit and GUI testing
 
 **Hardware**: NVIDIA RTX 2050 (4 GB, CUDA) with CPU fallback; Linux workstation.
 
 ## System Architecture
 
-The system is a single-process desktop application. UI-to-data communication is in-process Python — there is **no HTTP API** and no web server.
+The system is a single-process desktop application. UI-to-data communication is in-process Python — there is no HTTP API and no web server.
 
-Architecture and sequence diagrams are maintained in the repository:
+Architecture and sequence diagrams are maintained in the repository. Each diagram has a corresponding `.mmd` Mermaid source file alongside its PNG, plus a `render_diagrams.py` render script:
 
-| Diagram | File |
-|---------|------|
-| System Context | `documentation/System_Diagrams/01_system_context.png` |
-| IPO Model | `documentation/System_Diagrams/02_ipo_model.png` |
-| System Architecture | `documentation/System_Diagrams/03_system_architecture.png` |
-| Scan Pipeline Flowchart | `documentation/System_Diagrams/04_scan_pipeline_flowchart.png` |
-| Entity Relationship Diagram | `documentation/System_Diagrams/05_entity_relationship_diagram.png` |
-| Use Case Diagram | `documentation/System_Diagrams/06_use_case_diagram.png` |
-| Data Flow Diagram | `documentation/System_Diagrams/07_data_flow_diagram.png` |
-| YOLO Training Pipeline | `documentation/System_Diagrams/08_yolo_training_pipeline.png` |
-
-Each diagram has a corresponding `.mmd` Mermaid source file alongside its PNG, plus a `render_diagrams.py` render script.
+- **System Context**: `documentation/System_Diagrams/01_system_context.png`
+- **IPO Model**: `documentation/System_Diagrams/02_ipo_model.png`
+- **System Architecture**: `documentation/System_Diagrams/03_system_architecture.png`
+- **Scan Pipeline Flowchart**: `documentation/System_Diagrams/04_scan_pipeline_flowchart.png`
+- **Entity Relationship Diagram**: `documentation/System_Diagrams/05_entity_relationship_diagram.png`
+- **Use Case Diagram**: `documentation/System_Diagrams/06_use_case_diagram.png`
+- **Data Flow Diagram**: `documentation/System_Diagrams/07_data_flow_diagram.png`
+- **YOLO Training Pipeline**: `documentation/System_Diagrams/08_yolo_training_pipeline.png`
 
 ## Frontend Documentation
 
@@ -295,7 +258,7 @@ WIT Barcode Student Information System/
 ├── services/                        # Business logic services
 ├── ui/                              # User interface (PySide6 pages & dialogs)
 ├── styles/                          # Theming (colors, typography, QSS)
-├── assets/                          # Images, fonts, icons, barcodes, logos, profile photos
+├── assets/                          # Images, icons, barcodes, logos, profile photos
 │   ├── backgrounds/
 │   ├── barcodes/
 │   ├── images/
@@ -327,13 +290,92 @@ WIT Barcode Student Information System/
 └── presentation/                    # Technical presentation (PPTX) and delivery assets
 ```
 
+## Data Visualizations
+
+Six charts generated from real project data:
+
+### Assessment Breakdown
+Description: Tuition, Miscellaneous, Laboratory, and CDA fees per student.
+
+![Assessment Breakdown](documentation/charts/chart1_assessment_breakdown.png)
+
+### Payment Schedule
+Description: Four instalments and their payment status.
+
+![Payment Schedule](documentation/charts/chart2_payment_schedule.png)
+
+### Detector Performance
+Description: GPU vs CPU inference latency and FPS.
+
+![Detector Performance](documentation/charts/chart3_detector_performance.png)
+
+### Scan Success Rate
+Description: 49 successful scans and 24 not-found scans (67.1%).
+
+![Scan Success Rate](documentation/charts/chart4_scan_success.png)
+
+### Test Results
+Description: 24 test modules and 557 passing tests.
+
+![Test Results](documentation/charts/chart5_test_results.png)
+
+### Subject Credits
+Description: Seven subjects and 20 total credits.
+
+![Subject Credits](documentation/charts/chart6_subject_credits.png)
+
+All charts are stored in `documentation/charts/`.
+
+## Application Screenshots
+
+Genuine screenshots captured from the live application:
+
+### Dashboard
+![Dashboard](documentation/screenshots/01_dashboard.png)
+
+### Dashboard — Student Selected
+![Dashboard Student Selected](documentation/screenshots/02_dashboard_student_selected.png)
+
+### Students Directory
+![Students Directory](documentation/screenshots/03_students_directory.png)
+
+### Add Student Dialog
+![Add Student Dialog](documentation/screenshots/05_student_dialog_add.png)
+
+### Enrollment — Subjects
+![Enrollment Subjects](documentation/screenshots/08_enrollment_subjects.png)
+
+### Certificate of Matriculation
+![Certificate of Matriculation](documentation/screenshots/11_certificate_of_matriculation.png)
+
+### Assessment and Fees
+![Assessment and Fees](documentation/screenshots/12_assessment_fees.png)
+
+### Reports and Analytics
+![Reports and Analytics](documentation/screenshots/14_reports_analytics.png)
+
+### Barcode Scanner — Verified
+![Scanner Verified](documentation/screenshots/17_scanner_verified.png)
+
+### Scan Result Panel
+![Scan Result Panel](documentation/screenshots/18_scan_result_dialog.png)
+
+### Scanner — Live Camera
+![Scanner Live Camera](documentation/screenshots/19_scanner_camera_running.png)
+
+### Training Center
+![Training Center](documentation/screenshots/21_training_center_training.png)
+
+### Settings
+![Settings](documentation/screenshots/23_settings.png)
+
+All screenshots are stored in `documentation/screenshots/`. See `documentation/screenshots/screenshot_manifest.txt` for the complete list of 23 captures.
+
 ## Developers and Contributors
 
 Developed for Western Institute of Technology (WIT).
 
-| Role | Contact |
-|------|---------|
-| WIT IT Department | For issues and feature requests |
+- **WIT IT Department**: For issues and feature requests
 
 ## License
 
