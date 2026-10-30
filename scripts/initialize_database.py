@@ -5,8 +5,12 @@ Run this script to create the database schema and seed initial data.
 """
 
 import sys
+import os
 import shutil
+import secrets
+import string
 from pathlib import Path
+from typing import Optional
 from decimal import Decimal
 from datetime import date
 
@@ -165,6 +169,114 @@ def _resolve_seed_user_id():
     except Exception as exc:
         logger.warning(f"Could not resolve a seed user: {exc}")
         return None
+
+
+def _migrate_users_table() -> None:
+    """Add ``password_changed_at``, ``failed_attempts``, and ``locked_until``
+    to existing ``users`` tables.
+
+    Fresh databases get these columns from :data:`database.schema.SCHEMA_SQL`.
+    Databases created before these columns existed need an explicit
+    ``ALTER TABLE`` so lockout tracking and first-login password-change
+    tracking work for every deployment. The migration is idempotent: it only
+    adds columns when they are absent and never touches existing data.
+    """
+    columns_to_add = [
+        ("password_changed_at", "TIMESTAMP NULL"),
+        ("failed_attempts", "INT UNSIGNED NOT NULL DEFAULT 0"),
+        ("locked_until", "TIMESTAMP NULL"),
+    ]
+
+    for column_name, column_type in columns_to_add:
+        try:
+            with get_cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT COLUMN_NAME
+                    FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME = 'users'
+                      AND COLUMN_NAME = %s
+                    """,
+                    (column_name,),
+                )
+                if cursor.fetchone():
+                    continue  # column already present
+        except DatabaseUnavailableError:
+            raise
+        except Exception as exc:
+            logger.warning(f"Could not inspect users table for column {column_name}: {exc}")
+            return
+
+        try:
+            with get_cursor(commit=True) as cursor:
+                cursor.execute(
+                    f"ALTER TABLE `users` ADD COLUMN `{column_name}` {column_type}"
+                )
+            logger.info("Migrated users table: added %s column.", column_name)
+        except DatabaseUnavailableError:
+            raise
+        except Exception as exc:
+            # A concurrent migration may have added the column between the
+            # check and the ALTER; that is not an error.
+            logger.warning(f"Could not add {column_name} column: {exc}")
+
+
+def _ensure_admin_user() -> Optional[int]:
+    """Provision the initial administrator account if none exists.
+
+    Creates the ``adminwit`` account with the initial password
+    ``adminwir123`` and role ``admin``. The account is created *only once*:
+    re-running initialization never resets an existing administrator's
+    password or overwrites account data.
+
+    The account is provisioned with ``password_changed_at = NULL``, which
+    forces a mandatory first-login password change before any protected
+    module is accessible.
+    """
+    # Ensure the column exists on pre-existing databases.
+    _migrate_users_table()
+
+    # Never create a second admin account and never overwrite an existing one.
+    try:
+        with get_cursor() as cursor:
+            cursor.execute("SELECT id FROM users WHERE username = %s LIMIT 1", ("adminwit",))
+            if cursor.fetchone():
+                logger.info("Administrator account 'adminwit' already exists; skipping provisioning.")
+                return None
+    except DatabaseUnavailableError:
+        raise
+
+    # The initial password is required by the deployment specification. It is
+    # stored only as a PBKDF2-HMAC-SHA256 hash; the plaintext value never
+    # touches the database, source code, or logs.
+    password = "adminwit123"
+
+    from services.auth_service import AuthService
+    password_hash = AuthService.hash_password(password)
+
+    try:
+        with get_cursor(commit=True) as cursor:
+            cursor.execute(
+                """
+                INSERT INTO users (username, email, password_hash, full_name, role, is_active, password_changed_at, failed_attempts, locked_until)
+                VALUES (%s, %s, %s, %s, %s, TRUE, NULL, 0, NULL)
+                """,
+                ("adminwit", "adminwit@wit.edu.ph", password_hash, "System Administrator", "admin"),
+            )
+            user_id = cursor.lastrowid
+    except DatabaseUnavailableError:
+        raise
+    except Exception as exc:
+        logger.warning(f"Could not provision administrator account: {exc}")
+        return None
+
+    logger.info(
+        "Provisioned initial administrator account 'adminwit' (id=%s, role=admin). "
+        "A mandatory first-login password change is required.",
+        user_id,
+    )
+    return user_id
 
 
 def seed_initial_data():
@@ -606,7 +718,10 @@ def main():
         sys.exit(1)
     
     logger.info("Database schema initialized successfully")
-    
+
+    # Provision the default administrator account before signing in is possible.
+    _ensure_admin_user()
+
     # Seed initial data
     try:
         seed_initial_data()

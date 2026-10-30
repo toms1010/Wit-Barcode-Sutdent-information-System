@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
     QMessageBox, QDialog, QFileDialog, QApplication
 )
 from PySide6.QtCore import Qt, QTimer, Slot, QSortFilterProxyModel
-from PySide6.QtGui import QFont, QPixmap, QPainter, QPageLayout, QPageSize, QColor
+from PySide6.QtGui import QFont, QFontMetrics, QPixmap, QPainter, QPageLayout, QPageSize, QColor
 from styles.typography import section_heading_font, page_heading_font, small_label_font, button_font, body_font, body_bold_font, monospace_font
 from styles.colors import Colors
 from ui.widgets.stat_card import StatCard
@@ -898,9 +898,10 @@ class DashboardPage(QWidget):
         # Size each button to its own label so the full text always shows and
         # the three buttons stay aligned instead of crowding the panel edge.
         _btn_font = button_font(11)
+        _btn_metrics = QFontMetrics(_btn_font)
         for button in (view_id_btn, print_id_btn, edit_btn):
             button.setFixedWidth(
-                _btn_font.horizontalAdvance(button.text()) + 30
+                _btn_metrics.horizontalAdvance(button.text()) + 30
             )
             button.setCursor(Qt.CursorShape.PointingHandCursor)
 

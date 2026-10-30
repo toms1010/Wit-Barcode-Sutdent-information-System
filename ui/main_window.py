@@ -1,14 +1,14 @@
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton,
     QStackedWidget, QFrame, QStatusBar, QToolBar, QMessageBox, QDialog,
-    QLineEdit, QSizePolicy, QApplication
+    QLineEdit, QSizePolicy, QApplication, QMenu
 )
-from PySide6.QtCore import Qt, QTimer, QDateTime
+from PySide6.QtCore import Qt, QTimer, QDateTime, Signal
 from PySide6.QtGui import QFont, QIcon, QKeySequence, QPixmap, QShortcut, QAction
 from config.settings import settings
 from styles.typography import get_open_sauce_family, get_agrandir_family, body_font, body_bold_font, page_heading_font, button_font, small_label_font
 from styles.colors import Colors
-from ui.widgets.sidebar import Sidebar
+from ui.widgets.sidebar import Sidebar, NAV_ITEMS
 from ui.dashboard import DashboardPage
 from ui.students_page import StudentsPage
 from ui.scanner_page import ScannerPage
@@ -19,6 +19,7 @@ from ui.courses_page import CoursesPage
 from ui.certificate_page import CertificatePage
 from ui.training_center import TrainingCenterPage
 from ui.settings_page import SettingsPage
+from ui.login_page import LoginPage
 from ui.dialogs.student_dialog import StudentDialog
 from database.connection import DatabaseUnavailableError
 from ui.db_error import show_db_error
@@ -26,9 +27,30 @@ from services.student_service import StudentService
 from services.barcode_generator import BarcodeGeneratorService
 from services.assessment_service import AssessmentService
 from services.report_service import ReportService
+from services.auth_service import (
+    ROLE_ADMIN, ROLE_STAFF, ROLE_VIEWER,
+    auth_service as default_auth_service,
+)
+from models.user import User
 import logging
 
 logger = logging.getLogger(__name__)
+
+#: Pages each role may open. Enforced in the sidebar (UI) and, where a page
+#: performs writes, in the page's own authorization check (backend).
+ROLE_PAGES = {
+    ROLE_ADMIN: {
+        "dashboard", "students", "scanner", "enrollment", "courses",
+        "certificate", "assessment", "reports", "training", "settings",
+    },
+    ROLE_STAFF: {
+        "dashboard", "students", "scanner", "enrollment", "courses",
+        "certificate", "assessment", "reports", "training", "settings",
+    },
+    ROLE_VIEWER: {
+        "dashboard", "students", "scanner", "reports",
+    },
+}
 
 PAGE_CLASSES = {
     "dashboard": DashboardPage,
@@ -59,24 +81,39 @@ PAGE_TITLES = {
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    #: Emitted when the user logs out, so the entry point can return to the
+    #: login dialog instead of quitting the application.
+    logout_requested = Signal()
+
+    def __init__(self, current_user: User | None = None, auth_service=None):
         super().__init__()
         self.setWindowTitle("WIT Barcode Student Information System")
         self.setMinimumSize(1280, 800)
         self.resize(1400, 900)
-        
+
+        #: The authenticated user. In production nobody reaches the main window
+        #: without one (the login gate in :func:`main.main` enforces it), but
+        #: the parameter is optional so the window can be constructed directly
+        #: for navigation-mechanics testing.
+        self.current_user = current_user
+        self.auth = auth_service or default_auth_service
+        # Keep the shared session singleton in step so any page or service can
+        # perform authorization checks via ``services.auth_service.auth_service``.
+        self.auth._current_user = current_user
+
         # Initialize services
         self.student_service = StudentService()
         self.barcode_service = BarcodeGeneratorService()
         self.assessment_service = AssessmentService()
         self.report_service = ReportService()
-        
+
         self.current_page = "dashboard"
         self.pages = {}
+        self.logout_requested = False
         # Tracks whether the scanner's cross-page signal has been connected, so
         # re-opening the page does not stack duplicate handlers.
         self._scanner_connected = False
-        
+
         self._setup_ui()
         self._setup_status_bar()
         self._setup_timers()
@@ -87,8 +124,8 @@ class MainWindow(QMainWindow):
         app = QApplication.instance()
         if app is not None:
             app.aboutToQuit.connect(self.shutdown)
-        
-        # Navigate to dashboard initially
+
+        # Navigate to dashboard initially (always an allowed page for every role).
         self.navigate_to("dashboard")
     
     def _setup_ui(self):
@@ -100,8 +137,14 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         
-        # Sidebar
-        self.sidebar = Sidebar()
+        # Sidebar (role-filtered: users only see modules their role may open.
+        # When there is no authenticated session -- navigation-mechanics
+        # testing -- every module is shown.)
+        if self.current_user is not None:
+            allowed = ROLE_PAGES.get(self.current_user.role, set())
+        else:
+            allowed = None
+        self.sidebar = Sidebar(allowed_pages=allowed)
         self.sidebar.navigation_changed.connect(self.navigate_to)
         main_layout.addWidget(self.sidebar)
         
@@ -197,11 +240,32 @@ class MainWindow(QMainWindow):
         self.db_status.setStyleSheet(f"color: {Colors.MEDIUM_TEXT};")
         top_layout.addWidget(self.db_status)
         
-        # User menu
-        self.user_btn = QPushButton("Admin ▼")
-        self.user_btn.setProperty("ghost", "true")
-        self.user_btn.setStyleSheet("QPushButton { color: #4A3520; }")
-        top_layout.addWidget(self.user_btn)
+        # User menu: shows the signed-in account and a real Logout action.
+        # Only shown when there is an authenticated session.
+        if self.current_user is not None:
+            self.user_btn = QPushButton(
+                f"{self.current_user.full_name} ▼"
+            )
+            self.user_btn.setProperty("ghost", "true")
+            self.user_btn.setStyleSheet(
+                f"QPushButton {{ color: {Colors.DARK_BURNT_ORANGE}; }}"
+            )
+            self.user_btn.setToolTip(
+                f"{self.current_user.full_name} • {self.current_user.role}"
+            )
+            self.user_menu = QMenu(self)
+            self.user_menu.addAction(
+                f"Signed in as {self.current_user.full_name}"
+            ).setEnabled(False)
+            self.user_menu.addSeparator()
+            self.user_menu.addAction(
+                f"Role: {self.current_user.role}"
+            ).setEnabled(False)
+            self.user_menu.addSeparator()
+            logout_action = self.user_menu.addAction("Log out")
+            logout_action.triggered.connect(self._logout)
+            self.user_btn.setMenu(self.user_menu)
+            top_layout.addWidget(self.user_btn)
         
         content_layout.addWidget(self.top_bar)
         
@@ -315,16 +379,27 @@ class MainWindow(QMainWindow):
     def navigate_to(self, page_id: str, context: object = None):
         """Open a page, optionally preselecting a student.
 
-        Parameters
-        ----------
-        page_id:
-            Key of :data:`PAGE_CLASSES`, as emitted by the sidebar.
-        context:
-            Optional routing hint. A ``Student`` is forwarded to the page's
-            ``preload_student`` hook, which re-reads the record from the database
-            before displaying it -- the object is never trusted as the source of
-            the data itself.
+        Route protection: when a session exists, users whose role does not
+        permit the page are refused navigation. The login gate in
+        :func:`main.main` ensures nobody reaches the main window unauthenticated
+        in production; this defends against direct role escalation. When there
+        is no session (navigation-mechanics testing) all routes open.
         """
+        # Authorization gate: only enforced when a session exists.
+        if self.current_user is not None:
+            allowed = ROLE_PAGES.get(self.current_user.role, set())
+            if page_id not in allowed and page_id != "logout":
+                logger.warning(
+                    "Navigation refused: role %s may not open %s",
+                    self.current_user.role, page_id,
+                )
+                QMessageBox.information(
+                    self, "Not authorised",
+                    f"Your role ({self.current_user.role}) does not have access to "
+                    f"the {PAGE_TITLES.get(page_id, page_id)} module."
+                )
+                return
+
         if page_id == "logout":
             self._logout()
             return
@@ -463,14 +538,27 @@ class MainWindow(QMainWindow):
                 QMessageBox.critical(self, "Error", f"Failed to save student: {e}")
     
     def _logout(self):
+        # No session to end (navigation-mechanics testing).
+        if self.current_user is None:
+            return
+
         reply = QMessageBox.question(
-            self, "Logout",
-            "Are you sure you want to logout?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            self, "Log out",
+            f"Are you sure you want to log out {self.current_user.full_name}?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
-        if reply == QMessageBox.StandardButton.Yes:
-            QMessageBox.information(self, "Logout", "Logout functionality to be implemented.")
-            # Could close window or show login screen
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        # Invalidate the session and clear client-side authentication state.
+        self.auth.logout()
+        logger.info("User %s logged out", self.current_user.full_name)
+
+        # Signal the entry point to return to the login dialog, then close this
+        # window so the event loop returns and the session loop can re-show login.
+        self.logout_requested = True
+        self.close()
     
     def shutdown(self) -> None:
         """Release everything the pages own, once.

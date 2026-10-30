@@ -235,13 +235,13 @@ The system includes 6 data visualization charts generated from real project data
 
 ### Quick Download Links
 
-[![Download Presentation](https://img.shields.io/badge/Download-Presentation-blue?style=for-the-badge&logo=microsoft-powerpoint)](presentation/WIT_Barcode_Student_Information_System_Technical_Presentation.pptx)
+[Download Presentation](presentation/WIT_Barcode_Student_Information_System_Technical_Presentation.pptx)
 
-[![Download Documentation DOCX](https://img.shields.io/badge/Download-Documentation_DOCX-blue?style=for-the-badge&logo=microsoft-word)](documentation/Project_Documentation.docx)
+[Download Documentation DOCX](documentation/Project_Documentation.docx)
 
-[![Download Documentation PDF](https://img.shields.io/badge/Download-Documentation_PDF-red?style=for-the-badge&logo=adobe-acrobat-reader)](documentation/Project_Documentation.pdf)
+[Download Documentation PDF](documentation/Project_Documentation.pdf)
 
-[![Download Documentation MD](https://img.shields.io/badge/Download-Documentation_MD-gray?style=for-the-badge&logo=markdown)](documentation/Project_Documentation.md)
+[Download Documentation MD](documentation/Project_Documentation.md)
 
 ## Fonts
 

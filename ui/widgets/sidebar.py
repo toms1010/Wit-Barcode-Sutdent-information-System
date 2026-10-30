@@ -23,8 +23,8 @@ NAV_ITEMS = [
 
 class Sidebar(QListWidget):
     navigation_changed = Signal(str)
-    
-    def __init__(self, parent=None):
+
+    def __init__(self, allowed_pages: set[str] | None = None, parent=None):
         super().__init__(parent)
         self.setObjectName("sidebar")
         self.setFixedWidth(260)
@@ -32,19 +32,22 @@ class Sidebar(QListWidget):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setFrameStyle(QFrame.Shape.NoFrame)
-        
-        self._setup_items()
+
+        self._setup_items(allowed_pages)
         self.currentRowChanged.connect(self._on_current_changed)
-        
-    def _setup_items(self):
+
+    def _setup_items(self, allowed_pages: set[str] | None):
         for item_id, label, icon in NAV_ITEMS:
+            if allowed_pages is not None and item_id not in allowed_pages:
+                continue
             item = QListWidgetItem(f"  {icon}  {label}")
             item.setData(Qt.ItemDataRole.UserRole, item_id)
             item.setSizeHint(QSize(240, 44))
             item.setFont(button_font())
             self.addItem(item)
-        
-        self.setCurrentRow(0)
+
+        if self.count() > 0:
+            self.setCurrentRow(0)
     
     def _on_current_changed(self, row: int):
         if row >= 0:

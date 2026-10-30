@@ -1,0 +1,16 @@
+default: true
+MD013:
+  line_length: 80
+  default: true
+MD031:
+  default: true
+MD032:
+  default: true
+MD033:
+  default: true
+MD034:
+  default: true
+MD040:
+  default: true
+MD060:
+  style: none
